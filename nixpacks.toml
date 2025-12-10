@@ -5,4 +5,4 @@ nixPkgs = ["nodejs_22", "bun"]
 cmds = ["bun install --no-save"]
 
 [start]
-cmd = "bun run server.ts"
+cmd = "bun server.ts"
