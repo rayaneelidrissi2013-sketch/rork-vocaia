@@ -8,8 +8,8 @@ export const [AuthProvider, useAuth] = createContextHook(
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // ✅ REGISTER via BACKEND (temporaire)
     const registerMutation = trpc.auth.register.useMutation();
+    const loginMutation = trpc.auth.login.useMutation();
 
     const register = async (
       email: string,
@@ -45,6 +45,32 @@ export const [AuthProvider, useAuth] = createContextHook(
       }
     };
 
+    const login = async (email: string, password: string) => {
+      try {
+        setIsLoading(true);
+
+        const response = await loginMutation.mutateAsync({
+          email,
+          password,
+        });
+
+        if (!response.success) {
+          throw new Error('Login failed');
+        }
+
+        const user: User = {
+          ...response.user,
+          role: response.user.role as 'user' | 'admin' | undefined,
+        };
+        setUser(user);
+      } catch (error) {
+        console.error('[Auth] Login error:', error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     return {
       user,
       isAuthenticated: !!user,
@@ -52,13 +78,8 @@ export const [AuthProvider, useAuth] = createContextHook(
       hasActivePlan: false,
       isLoading,
 
-      // ✅ TEMPORAIREMENT DÉSACTIVÉS
-      login: async () => {
-        throw new Error('Login not implemented yet');
-      },
-      adminLogin: async () => {
-        throw new Error('Admin login not implemented yet');
-      },
+      login,
+      adminLogin: login,
 
       register,
       logout: async () => setUser(null),

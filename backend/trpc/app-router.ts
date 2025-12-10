@@ -43,6 +43,7 @@ import applyReferralCodeRoute from "./routes/referral/applyReferralCode/route";
 import { sendVerificationCodeProcedure } from "./routes/auth/sendVerificationCode/route";
 import { verifyCodeProcedure } from "./routes/auth/verifyCode/route";
 import { registerProcedure } from "./routes/auth/register";
+import { loginProcedure } from "./routes/auth/login/route";
 
 // user
 import { assignVirtualNumberProcedure } from "./routes/user/assignVirtualNumber/route";
@@ -96,7 +97,8 @@ export const appRouter = createTRPCRouter({
   auth: createTRPCRouter({
     sendVerificationCode: sendVerificationCodeProcedure,
     verifyCode: verifyCodeProcedure,
-    register: registerProcedure, // ✅ ROUTE INSCRIPTION BACKEND
+    register: registerProcedure,
+    login: loginProcedure,
   }),
 
   user: createTRPCRouter({
