@@ -2,7 +2,6 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "nixpacksVersion": "1.41.0",
     "nixpacksPlan": {
       "phases": {
         "setup": {
@@ -10,9 +9,6 @@
         },
         "install": {
           "cmds": ["bun install --no-save"]
-        },
-        "build": {
-          "cmds": []
         }
       },
       "start": {
@@ -23,6 +19,6 @@
   "deploy": {
     "startCommand": "bun run server.ts",
     "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
+    "restartPolicyMaxRetries": 3
   }
 }
