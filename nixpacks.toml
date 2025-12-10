@@ -1,6 +1,5 @@
 [phases.setup]
 nixPkgs = ["nodejs_22", "bun"]
-nixpkgsArchive = "31fb21469e34b6b5c7be77b9a35bae43d0c598e9"
 
 [phases.install]
 cmds = ["bun install --no-save"]
