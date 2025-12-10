@@ -1,0 +1,75 @@
+import { SubscriptionPlan } from '../types/index.js';
+
+export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+  {
+    id: 'free',
+    name: 'Testez l\'Assistant IA',
+    minutesIncluded: 1,
+    price: 0,
+    overagePolicy: 'block',
+    features: [
+      'Que vous soyez occupé, en réunion ou simplement indisponible, activez votre Agent IA directement depuis l\'application. Il prend vos appels à votre place et vous transmet un résumé immédiat. Bénéficiez d\'1 minute offerte pour découvrir le service sans engagement.',
+    ],
+  },
+  {
+    id: 'discovery',
+    name: 'Pack Découverte',
+    minutesIncluded: 100,
+    price: 35,
+    overagePolicy: 'block',
+    features: [
+      '100 minutes incluses',
+      '1 utilisateur',
+      'Prompt personnalisé',
+      'Transcription complète',
+      'Historique des appels',
+      'Support email',
+    ],
+  },
+  {
+    id: 'standard',
+    name: 'Pack Standard',
+    minutesIncluded: 300,
+    price: 90,
+    overagePolicy: 'block',
+    isRecommended: true,
+    features: [
+      '300 minutes incluses',
+      'Jusqu\'à 3 utilisateurs',
+      'Numéros multi-pays',
+      'Statistiques avancées',
+      'Support prioritaire',
+    ],
+  },
+  {
+    id: 'pro',
+    name: 'Pack Pro',
+    minutesIncluded: 1200,
+    price: 300,
+    overagePolicy: 'block',
+    features: [
+      '1,200 minutes incluses',
+      'Utilisateurs illimités',
+      'Support 24/7',
+      'Rapports détaillés',
+    ],
+  },
+  {
+    id: 'enterprise',
+    name: 'Pack Entreprise',
+    minutesIncluded: 1200,
+    price: 0,
+    overagePolicy: 'custom',
+    isEnterprise: true,
+    features: [
+      '1,200+ minutes d\'appels IA/mois',
+      'Fonctionnement 24h/24 et 7j/7',
+      'Zéro charge salariale',
+      'Solutions sur-mesure',
+      'Agents IA Multilingues',
+      'Account Manager dédié',
+      'Support prioritaire 24/7',
+      'Tarification personnalisée',
+    ],
+  },
+];

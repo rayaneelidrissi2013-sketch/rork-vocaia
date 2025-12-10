@@ -1,0 +1,19 @@
+# Database
+DATABASE_URL=postgresql://user:password@host:port/database
+
+# Vapi.ai
+VAPI_API_KEY=your_vapi_api_key
+VAPI_WEBHOOK_SECRET=your_vapi_webhook_secret
+
+# PayPal
+PAYPAL_CLIENT_ID=your_paypal_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+PAYPAL_MODE=sandbox
+
+# Google Cloud Storage
+GCS_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"your_project"}
+GCS_BUCKET_NAME=your_bucket_name
+
+# Server
+PORT=3000
+NODE_ENV=production
