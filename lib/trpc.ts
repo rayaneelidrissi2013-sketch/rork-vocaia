@@ -6,11 +6,9 @@ import superjson from "superjson";
 export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
-  if (process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
-    return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
-  }
-
-  return "http://localhost:3000";
+  const url = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || "http://localhost:3000";
+  console.log('[tRPC] Base URL:', url);
+  return url;
 };
 
 export const trpcClient = trpc.createClient({

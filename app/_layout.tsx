@@ -17,17 +17,17 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 0,
-      retryDelay: 500,
+      retry: 2,
+      retryDelay: 1000,
       staleTime: 5000,
-      networkMode: 'offlineFirst',
+      networkMode: 'online',
       gcTime: 0,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
     },
     mutations: {
-      retry: 0,
-      networkMode: 'offlineFirst',
+      retry: 1,
+      networkMode: 'online',
     },
   },
 });
@@ -141,7 +141,7 @@ function RootLayoutNav() {
     console.log('[RootLayoutNav] Mounting - hiding splash immediately');
     setTimeout(() => {
       SplashScreen.hideAsync().catch(e => console.log('[Splash] Hide error:', e));
-    }, 50);
+    }, 200);
   }, []);
 
   useEffect(() => {
