@@ -1,1 +1,7 @@
+# Frontend - URL du backend Railway
 EXPO_PUBLIC_RORK_API_BASE_URL=https://vocaia-backend-clean-production.up.railway.app
+
+# Backend - Variables d'environnement (à configurer sur Railway)
+# DATABASE_URL=postgresql://postgres:Ultratel231U@db.urhxfjbinunhyxmqdzxi.supabase.co:5432/postgres
+# NODE_ENV=production
+# PORT=3000
