@@ -18,10 +18,10 @@ app.use("*", cors());
 /**
  * ✅ tRPC — POINT CRITIQUE
  * ✅ PAS de wildcard
- * ✅ endpoint EXACT = /api/trpc
+ * ✅ endpoint EXACT = /api/trpc/*
  */
 app.use(
-  "/api/trpc",
+  "/api/trpc/*",
   trpcServer({
     router: appRouter,
     createContext,
