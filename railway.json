@@ -6,10 +6,13 @@
     "nixpacksPlan": {
       "phases": {
         "setup": {
-          "nixPkgs": ["nodejs_20", "bun"]
+          "nixPkgs": ["nodejs_22", "bun"]
         },
         "install": {
           "cmds": ["bun install --no-save"]
+        },
+        "build": {
+          "cmds": []
         }
       },
       "start": {
@@ -20,6 +23,6 @@
   "deploy": {
     "startCommand": "bun run server.ts",
     "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
+    "restartPolicyMaxRetries": 3
   }
 }
