@@ -1,7 +1,0 @@
-[build]
-builder = "nixpacks"
-buildCommand = "npm i && npm run build"
-
-[deploy]
-startCommand = "npm start"
-watchPatterns = ["backend/**"]
