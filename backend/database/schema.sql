@@ -227,7 +227,7 @@ VALUES
    '["Assistant vocal IA 24H/7J", "Retranscription de tous vos appels"]'::jsonb, 
    FALSE, 'upgrade'),
   ('entreprise', 'Pack Entreprise', 99999, 0.00, 
-   '["750+ minutes d\'appels IA/mois", "Fonctionnement 24h/24 et 7j/7", "Zéro charge salariale", "Solutions sur-mesure", "Agents IA Multilingues", "Account Manager dédié", "Support prioritaire 24/7", "Tarification sur mesure", "Évolutivité instantanée", "Rapports détaillés"]'::jsonb, 
+   '["750+ minutes d''appels IA/mois", "Fonctionnement 24h/24 et 7j/7", "Zéro charge salariale", "Solutions sur-mesure", "Agents IA Multilingues", "Account Manager dédié", "Support prioritaire 24/7", "Tarification sur mesure", "Évolutivité instantanée", "Rapports détaillés"]'::jsonb, 
    FALSE, 'upgrade')
 ON CONFLICT (id) DO NOTHING;
 
