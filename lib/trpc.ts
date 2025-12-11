@@ -6,19 +6,14 @@ import superjson from "superjson";
 export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
-  const HARDCODED_URL = 'https://vocaia-backend-clean-production.up.railway.app';
-  const url = HARDCODED_URL;
+  const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   
-  console.log('[tRPC] ========================================');
-  console.log('[tRPC] Checking environment variables...');
-  console.log('[tRPC] EXPO_PUBLIC_RORK_API_BASE_URL:', process.env.EXPO_PUBLIC_RORK_API_BASE_URL);
-  console.log('[tRPC] EXPO_PUBLIC_API_BASE_URL:', process.env.EXPO_PUBLIC_API_BASE_URL);
-  console.log('[tRPC] USING URL:', url);
-  console.log('[tRPC] URL length:', url?.length);
-  console.log('[tRPC] URL characters:', JSON.stringify(url));
-  console.log('[tRPC] ========================================');
+  if (!envUrl) {
+    console.error('[tRPC] ❌ EXPO_PUBLIC_RORK_API_BASE_URL is not defined!');
+    throw new Error('EXPO_PUBLIC_RORK_API_BASE_URL environment variable is required');
+  }
   
-  const trimmedUrl = url.trim();
+  const trimmedUrl = envUrl.trim();
   console.log('[tRPC] ✅ Using base URL:', trimmedUrl);
   console.log('[tRPC] ✅ Full tRPC endpoint:', `${trimmedUrl}/api/trpc`);
   
