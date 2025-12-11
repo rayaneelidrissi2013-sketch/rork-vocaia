@@ -95,7 +95,8 @@ export default function LoginScreen() {
     try {
       await sendCodeMutation.mutateAsync({ 
         phoneNumber: pendingUserData.phoneNumber,
-        countryCode: selectedCountry.dialCode 
+        countryCode: selectedCountry.dialCode,
+        email: pendingUserData.email
       });
       Alert.alert('Succès', 'Le code a été renvoyé');
     } catch {
@@ -144,7 +145,8 @@ export default function LoginScreen() {
         
         await sendCodeMutation.mutateAsync({ 
           phoneNumber: fullPhoneNumber,
-          countryCode: selectedCountry.dialCode 
+          countryCode: selectedCountry.dialCode,
+          email: email
         });
         
         setVerificationStep('verify');

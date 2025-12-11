@@ -80,11 +80,21 @@ export const registerProcedure = publicProcedure
       };
     } catch (error: any) {
       console.error('[REGISTER] Error:', error);
+      console.error('[REGISTER] Error details:', {
+        message: error.message,
+        code: error.code,
+        detail: error.detail,
+        stack: error.stack
+      });
       
       if (error.message === 'USER_ALREADY_EXISTS') {
         throw new Error('Un utilisateur avec cet email existe déjà');
       }
       
-      throw new Error('Erreur lors de l\'inscription');
+      if (error.code === '23505') {
+        throw new Error('Un utilisateur avec cet email ou ce numéro existe déjà');
+      }
+      
+      throw new Error(`Erreur lors de l'inscription: ${error.message || 'Erreur inconnue'}`);
     }
   });
