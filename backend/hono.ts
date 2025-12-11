@@ -46,10 +46,10 @@ app.use("*", cors({
 
 /**
  * ✅ tRPC — POINT CRITIQUE
- * ✅ endpoint = /api/trpc
+ * ✅ endpoint = /api/trpc/*
  */
 app.use(
-  "/api/trpc",
+  "/api/trpc/*",
   trpcServer({
     router: appRouter,
     createContext,
