@@ -10,7 +10,8 @@ const getBaseUrl = () => {
   console.log('[tRPC] ========================================');
   console.log('[tRPC] Checking environment variables...');
   console.log('[tRPC] EXPO_PUBLIC_RORK_API_BASE_URL:', url);
-  console.log('[tRPC] All env vars:', process.env);
+  console.log('[tRPC] URL length:', url?.length);
+  console.log('[tRPC] URL characters:', JSON.stringify(url));
   console.log('[tRPC] ========================================');
   
   if (!url) {
@@ -18,10 +19,11 @@ const getBaseUrl = () => {
     throw new Error('API URL not configured. Please set EXPO_PUBLIC_RORK_API_BASE_URL');
   }
   
-  console.log('[tRPC] ✅ Using base URL:', url);
-  console.log('[tRPC] ✅ Full tRPC endpoint:', `${url}/api/trpc`);
+  const trimmedUrl = url.trim();
+  console.log('[tRPC] ✅ Using base URL:', trimmedUrl);
+  console.log('[tRPC] ✅ Full tRPC endpoint:', `${trimmedUrl}/api/trpc`);
   
-  return url;
+  return trimmedUrl;
 };
 
 export const trpcClient = trpc.createClient({
