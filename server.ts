@@ -7,6 +7,8 @@ console.log(`[Server] Environment: ${process.env.NODE_ENV || "development"}`);
 console.log(`[Server] DATABASE_URL configured: ${!!process.env.DATABASE_URL}`);
 console.log(`[Server] Version: 2025-01-11 - All admin routes enabled`);
 console.log(`[Server] Auth routes: register, login, sendVerificationCode, verifyCode`);
+console.log(`[Server] tRPC endpoint: /api/trpc/*`);
+console.log(`[Server] CORS enabled for all origins`);
 
 export default {
   fetch: app.fetch,
