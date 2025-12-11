@@ -260,5 +260,5 @@ CREATE INDEX IF NOT EXISTS idx_sms_verifications_expires ON sms_verifications(ex
 -- Mot de passe par défaut: "admin123" (à changer immédiatement en production)
 INSERT INTO users (email, password_hash, name, phone_number, role, registration_date)
 VALUES
-  ('tawfikelidrissi@gmail.com', '$2b$10$YourHashedPasswordHere', 'Administrateur', '+212600000000', 'admin', NOW())
+  ('tawfikelidrissi@gmail.com', '$2b$10$BnMLy3YWxZHCnC3UnKKy.eC0YNaM2EFE4cGVj9cLhiQZ8PmC.nYru', 'Administrateur', '+212600000000', 'admin', NOW())
 ON CONFLICT (email) DO NOTHING;

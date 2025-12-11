@@ -1,6 +1,6 @@
-const { Pool } = require('pg');
-const fs = require('fs');
-const path = require('path');
+import { Pool } from 'pg';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const runMigration = async () => {
   const databaseUrl = 'postgresql://postgres:Ultratel231U@db.urhxfjbinunhyxmqdzxi.supabase.co:5432/postgres';
@@ -17,10 +17,9 @@ const runMigration = async () => {
     const testResult = await pool.query('SELECT NOW() as time, version() as version');
     console.log('✅ Connexion réussie à la base de données');
     console.log('📅 Heure du serveur:', testResult.rows[0].time);
-    console.log('📦 Version PostgreSQL:', testResult.rows[0].version.split('\n')[0]);
 
     console.log('\n📄 Lecture du fichier de schéma...');
-    const schemaPath = path.join(process.cwd(), 'backend', 'database', 'schema.sql');
+    const schemaPath = path.join(__dirname, 'backend', 'database', 'schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf-8');
     console.log('✅ Schéma chargé:', schema.length, 'caractères');
 
@@ -40,7 +39,7 @@ const runMigration = async () => {
     `);
     
     console.log('   Tables créées:');
-    tablesResult.rows.forEach((row) => {
+    tablesResult.rows.forEach((row: any) => {
       console.log('   ✓', row.table_name);
     });
 
@@ -65,30 +64,16 @@ const runMigration = async () => {
     
     if (smsTableResult.rows.length > 0) {
       console.log('   ✅ Table sms_verifications créée avec succès');
-      smsTableResult.rows.forEach((row) => {
+      smsTableResult.rows.forEach((row: any) => {
         console.log('      -', row.column_name, ':', row.data_type);
       });
     } else {
       console.log('   ❌ Table sms_verifications non trouvée!');
     }
 
-    console.log('\n📋 Test de la séquence d\'inscription:');
-    console.log('   1. Envoi du code SMS -> sendVerificationCode');
-    console.log('   2. Vérification du code -> verifyCode');
-    console.log('   3. Inscription de l\'utilisateur -> register');
-    console.log('   ✅ Toutes les tables nécessaires sont prêtes!\n');
+    console.log('\n🎉 Base de données VocaIA prête à l\'utilisation!');
 
-    console.log('⚠️  IMPORTANT: Changez le mot de passe de l\'administrateur!');
-    console.log('   Email: tawfikelidrissi@gmail.com');
-    console.log('   Mot de passe par défaut: admin123\n');
-
-    console.log('🎉 Base de données VocaIA prête à l\'utilisation!');
-    console.log('\n📝 Prochaines étapes:');
-    console.log('   1. Redémarrez votre backend Railway');
-    console.log('   2. Testez l\'inscription avec le code 1234');
-    console.log('   3. Vérifiez que l\'utilisateur est bien créé dans Supabase\n');
-
-  } catch (error) {
+  } catch (error: any) {
     console.error('\n❌ Erreur lors de la migration:', error.message);
     if (error.code) {
       console.error('Code d\'erreur PostgreSQL:', error.code);
