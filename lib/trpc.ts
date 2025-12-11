@@ -6,8 +6,14 @@ import superjson from "superjson";
 export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
-  const url = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || "https://vocaia-backend-clean-production.up.railway.app";
-  console.log('[tRPC] Base URL:', url);
+  const url = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+  console.log('[tRPC] Base URL from env:', url);
+  
+  if (!url) {
+    console.error('[tRPC] ERROR: EXPO_PUBLIC_RORK_API_BASE_URL is not set!');
+    throw new Error('API URL not configured. Please set EXPO_PUBLIC_RORK_API_BASE_URL');
+  }
+  
   return url;
 };
 
@@ -39,6 +45,11 @@ export const trpcClient = trpc.createClient({
             statusText: res.statusText,
             headers: res.headers,
           });
+        }).catch((error) => {
+          console.error('[tRPC] Fetch error:', error);
+          console.error('[tRPC] URL was:', input);
+          console.error('[tRPC] Full error:', JSON.stringify(error, null, 2));
+          throw error;
         });
       },
     }),
