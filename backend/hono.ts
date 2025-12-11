@@ -10,16 +10,38 @@ import type { VapiWebhookPayload } from "@/types";
 
 const app = new Hono();
 
+console.log('[Server] ========================================');
+console.log('[Server] Starting Hono server...');
+console.log('[Server] tRPC endpoint: /api/trpc/*');
+console.log('[Server] CORS enabled for all origins');
+console.log('[Server] ========================================');
+
+/**
+ * ✅ Middleware de logging global
+ */
+app.use("*", async (c, next) => {
+  const start = Date.now();
+  const path = c.req.path;
+  const method = c.req.method;
+  
+  console.log(`[${method}] ${path} - START`);
+  
+  await next();
+  
+  const duration = Date.now() - start;
+  console.log(`[${method}] ${path} - ${c.res.status} (${duration}ms)`);
+});
+
 /**
  * ✅ CORS (obligatoire pour Netlify / Expo)
  */
 app.use("*", cors({
   origin: '*',
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
-  exposeHeaders: ['Content-Length'],
-  maxAge: 600,
-  credentials: true,
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowHeaders: ['*'],
+  exposeHeaders: ['*'],
+  maxAge: 86400,
+  credentials: false,
 }));
 
 /**
@@ -32,6 +54,10 @@ app.use(
   trpcServer({
     router: appRouter,
     createContext,
+    onError: ({ error, path }) => {
+      console.error('[tRPC Server] Error on', path);
+      console.error('[tRPC Server] Error details:', error);
+    },
   })
 );
 
