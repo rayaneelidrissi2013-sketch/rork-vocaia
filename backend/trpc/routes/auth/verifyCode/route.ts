@@ -7,20 +7,23 @@ export const verifyCodeProcedure = publicProcedure
     code: z.string(),
   }))
   .mutation(async ({ input }) => {
-    console.log('[SMS Verification] Verifying code for:', input.phoneNumber);
+    console.log('[SMS Verification] Verifying SMS code for phone number:', input.phoneNumber);
     console.log('[SMS Verification] Code received:', input.code);
     
-    console.log('[SMS Verification] NOTE: Mock verification - accepting code "1234" for testing');
+    console.log('[SMS Verification] NOTE: Demo verification - accepting code "1234" for testing');
+    console.log('[SMS Verification] TODO: In production, verify the SMS code sent to', input.phoneNumber);
     
     if (input.code === '1234') {
+      console.log('[SMS Verification] ✅ Phone number verified successfully:', input.phoneNumber);
       return { 
         verified: true, 
-        message: 'Numéro vérifié avec succès'
+        message: 'Numéro de téléphone vérifié avec succès'
       };
     }
     
+    console.log('[SMS Verification] ❌ Invalid code provided for:', input.phoneNumber);
     return { 
       verified: false, 
-      message: 'Code incorrect. Utilisez 1234 pour le test.'
+      message: 'Code SMS incorrect. Utilisez 1234 pour le test.'
     };
   });

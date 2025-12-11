@@ -58,6 +58,32 @@ export const db = {
       }
     },
     
+    findByPhoneNumber: async (phoneNumber: string): Promise<DBUser | null> => {
+      console.log('[DB] Finding user by phone number:', phoneNumber);
+      const pool = getPool();
+      
+      try {
+        const result = await pool.query(
+          `SELECT 
+            id, email, name, phone_number as "phoneNumber", language, timezone, role,
+            vapi_agent_id as "vapiAgentId", vapi_phone_number as "vapiPhoneNumber",
+            user_personal_phone as "userPersonalPhone", is_agent_active as "isAgentActive",
+            custom_prompt_template as "customPromptTemplate", profession,
+            plan_id as "planId", minutes_included as "minutesIncluded",
+            minutes_remaining as "minutesRemaining", minutes_consumed as "minutesConsumed",
+            date_renouvellement as "dateRenouvellement",
+            registration_date as "registrationDate", created_at as "createdAt"
+          FROM users WHERE phone_number = $1`,
+          [phoneNumber]
+        );
+        
+        return result.rows[0] || null;
+      } catch (error) {
+        console.error('[DB] Error finding user by phone number:', error);
+        throw error;
+      }
+    },
+    
     findById: async (id: string): Promise<DBUser | null> => {
       console.log('[DB] Finding user by id:', id);
       const pool = getPool();

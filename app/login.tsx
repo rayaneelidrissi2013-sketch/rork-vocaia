@@ -96,7 +96,6 @@ export default function LoginScreen() {
       await sendCodeMutation.mutateAsync({ 
         phoneNumber: pendingUserData.phoneNumber,
         countryCode: selectedCountry.dialCode,
-        email: pendingUserData.email
       });
       Alert.alert('Succès', 'Le code a été renvoyé');
     } catch {
@@ -146,7 +145,6 @@ export default function LoginScreen() {
         await sendCodeMutation.mutateAsync({ 
           phoneNumber: fullPhoneNumber,
           countryCode: selectedCountry.dialCode,
-          email: email
         });
         
         setVerificationStep('verify');
@@ -179,7 +177,7 @@ export default function LoginScreen() {
               </View>
               <Text style={styles.title}>Vérification</Text>
               <Text style={styles.subtitle}>
-                Entrez le code à 4 chiffres envoyé à votre numéro
+                Entrez le code à 4 chiffres envoyé par SMS
               </Text>
               <Text style={styles.phoneVerification}>
                 {pendingUserData?.phoneNumber}
