@@ -1,11 +1,11 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { trpcClient } from '@/lib/trpc';
 import { Stack } from 'expo-router';
 
 export default function RunMigrationScreen() {
   const [result, setResult] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const runMigration = async () => {
     setIsLoading(true);
@@ -28,6 +28,11 @@ export default function RunMigrationScreen() {
     }
   };
 
+  useEffect(() => {
+    console.log('[MIGRATION UI] Auto-starting migration on mount...');
+    runMigration();
+  }, []);
+
   return (
     <>
       <Stack.Screen 
@@ -41,24 +46,29 @@ export default function RunMigrationScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>🔧 Migration Base de Données</Text>
           <Text style={styles.subtitle}>
-            Cliquez sur le bouton ci-dessous pour exécuter la migration SQL
+            Migration en cours d&apos;exécution automatique...
           </Text>
           <Text style={styles.warning}>
-            ⚠️ Cette opération va créer toutes les tables dans Supabase
+            ⚠️ Cette opération crée toutes les tables dans PostgreSQL
           </Text>
         </View>
 
-        <TouchableOpacity
-          style={[styles.button, isLoading && styles.buttonDisabled]}
-          onPress={runMigration}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Exécuter la Migration</Text>
-          )}
-        </TouchableOpacity>
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#1e40af" />
+            <Text style={styles.loadingText}>Migration en cours...</Text>
+            <Text style={styles.loadingSubtext}>Veuillez patienter, cela peut prendre quelques secondes</Text>
+          </View>
+        )}
+
+        {!isLoading && result && (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={runMigration}
+          >
+            <Text style={styles.buttonText}>Réexécuter la Migration</Text>
+          </TouchableOpacity>
+        )}
 
         {result && (
           <View style={[styles.resultContainer, result.success ? styles.success : styles.error]}>
@@ -148,6 +158,28 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold' as const,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+    margin: 24,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#1e40af',
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: 'bold' as const,
+    color: '#1e40af',
+    marginTop: 16,
+  },
+  loadingSubtext: {
+    fontSize: 14,
+    color: '#64748b',
+    marginTop: 8,
+    textAlign: 'center',
   },
   resultContainer: {
     margin: 24,
