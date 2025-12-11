@@ -7,7 +7,7 @@ export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
   const HARDCODED_URL = 'https://vocaia-backend-clean-production.up.railway.app';
-  const url = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || process.env.EXPO_PUBLIC_API_BASE_URL || HARDCODED_URL;
+  const url = HARDCODED_URL;
   
   console.log('[tRPC] ========================================');
   console.log('[tRPC] Checking environment variables...');
