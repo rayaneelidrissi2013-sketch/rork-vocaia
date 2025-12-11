@@ -6,7 +6,7 @@ import superjson from "superjson";
 export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
-  const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+  const envUrl = 'https://vocaia-backend-clean-production.up.railway.app';
   
   const fallbackUrl = 'https://vocaia-backend-clean-production.up.railway.app';
   
