@@ -3,7 +3,7 @@ import type { DBUser, DBCall, DashboardStats, UserDetails, PaymentRecord } from 
 
 let pool: Pool | null = null;
 
-const getPool = (): Pool => {
+export const getPool = (): Pool => {
   if (!pool) {
     const databaseUrl = process.env.DATABASE_URL;
     

@@ -1,6 +1,6 @@
 import { publicProcedure } from '@/backend/trpc/create-context';
 import { z } from 'zod';
-import { db } from '@/backend/utils/database';
+import { db, getPool } from '@/backend/utils/database';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
@@ -20,6 +20,22 @@ export const registerProcedure = publicProcedure
     console.log('[REGISTER] Email:', input.email);
 
     try {
+      console.log('[REGISTER] Step 0: Checking if phone number was verified');
+      const pool = getPool();
+      const verificationResult = await pool.query(
+        `SELECT verified FROM sms_verifications 
+         WHERE phone_number = $1 AND verified = true 
+         ORDER BY created_at DESC 
+         LIMIT 1`,
+        [input.phoneNumber]
+      );
+      
+      if (verificationResult.rows.length === 0) {
+        console.log('[REGISTER] Phone number not verified:', input.phoneNumber);
+        throw new Error('Vous devez v\u00e9rifier votre num\u00e9ro de t\u00e9l\u00e9phone avant de vous inscrire');
+      }
+      console.log('[REGISTER] Phone number verified successfully');
+      
       console.log('[REGISTER] Step 1: Checking if phone number already exists');
       const existingUserByPhone = await db.users.findByPhoneNumber(input.phoneNumber);
       if (existingUserByPhone) {

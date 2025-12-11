@@ -243,6 +243,19 @@ VALUES
   ('allowed_countries', '["+1"]', 'Liste des codes pays autorisés pour l''inscription (format JSON array)')
 ON CONFLICT (setting_key) DO NOTHING;
 
+-- Table de vérification SMS (temporaire)
+CREATE TABLE IF NOT EXISTS sms_verifications (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  phone_number VARCHAR(50) NOT NULL,
+  code VARCHAR(10) NOT NULL,
+  verified BOOLEAN DEFAULT FALSE,
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sms_verifications_phone ON sms_verifications(phone_number);
+CREATE INDEX IF NOT EXISTS idx_sms_verifications_expires ON sms_verifications(expires_at);
+
 -- Création de l'utilisateur administrateur par défaut
 -- Mot de passe par défaut: "admin123" (à changer immédiatement en production)
 INSERT INTO users (email, password_hash, name, phone_number, role, registration_date)

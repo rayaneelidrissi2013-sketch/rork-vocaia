@@ -1,6 +1,6 @@
 import { publicProcedure } from '@/backend/trpc/create-context';
 import { z } from 'zod';
-import { db } from '@/backend/utils/database';
+import { db, getPool } from '@/backend/utils/database';
 
 export const sendVerificationCodeProcedure = publicProcedure
   .input(z.object({
@@ -19,8 +19,22 @@ export const sendVerificationCodeProcedure = publicProcedure
       }
       
       const code = '1234';
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
       
-      console.log('[SMS Verification] Demo code:', code);
+      const pool = getPool();
+      
+      await pool.query(
+        'DELETE FROM sms_verifications WHERE phone_number = $1',
+        [input.phoneNumber]
+      );
+      
+      await pool.query(
+        'INSERT INTO sms_verifications (phone_number, code, expires_at) VALUES ($1, $2, $3)',
+        [input.phoneNumber, code, expiresAt]
+      );
+      
+      console.log('[SMS Verification] Demo code stored in database:', code);
+      console.log('[SMS Verification] Code expires at:', expiresAt);
       console.log('[SMS Verification] NOTE: This is a demo implementation using code 1234.');
       console.log('[SMS Verification] TODO: In production, integrate with SMS provider like Twilio to send:', code, 'to', input.phoneNumber);
       
