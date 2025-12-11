@@ -18,24 +18,28 @@ export const registerProcedure = publicProcedure
     console.log('[REGISTER] Starting registration for:', input.email);
 
     try {
+      console.log('[REGISTER] Step 1: Checking if user exists');
       const existingUser = await db.users.findByEmail(input.email);
       if (existingUser) {
         console.log('[REGISTER] User already exists:', input.email);
         throw new Error('USER_ALREADY_EXISTS');
       }
+      console.log('[REGISTER] Step 2: User does not exist, proceeding with registration');
 
       const tempPassword = crypto.randomBytes(16).toString('hex');
       const passwordHash = await bcrypt.hash(tempPassword, 10);
+      console.log('[REGISTER] Step 3: Password hashed successfully');
 
       const referralCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+      console.log('[REGISTER] Step 4: Referral code generated:', referralCode);
 
-      const newUser = await db.users.create({
+      const userData = {
         email: input.email,
         name: input.name,
         phoneNumber: input.phoneNumber,
         language: input.language,
         timezone: input.timezone,
-        role: 'user',
+        role: 'user' as const,
         passwordHash,
         referralCode,
         vapiAgentId: undefined,
@@ -52,7 +56,11 @@ export const registerProcedure = publicProcedure
         referredByCode: undefined,
         bonusMinutes: 0,
         referralCount: 0,
-      });
+      };
+      console.log('[REGISTER] Step 5: User data prepared:', JSON.stringify(userData, null, 2));
+
+      console.log('[REGISTER] Step 6: Creating user in database...');
+      const newUser = await db.users.create(userData);
 
       console.log('[REGISTER] User created successfully:', newUser.id);
 

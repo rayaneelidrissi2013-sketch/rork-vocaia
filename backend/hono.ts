@@ -14,6 +14,7 @@ console.log('[Server] ========================================');
 console.log('[Server] Starting Hono server...');
 console.log('[Server] tRPC endpoint: /api/trpc/*');
 console.log('[Server] CORS enabled for all origins');
+console.log('[Server] tRPC router imported successfully');
 console.log('[Server] ========================================');
 
 /**

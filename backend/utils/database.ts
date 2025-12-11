@@ -115,6 +115,41 @@ export const db = {
       const pool = getPool();
       
       try {
+        const params = [
+          user.email, user.name, user.phoneNumber, user.language || 'fr',
+          user.timezone || 'Europe/Paris', user.role || 'user', user.passwordHash,
+          user.vapiAgentId, user.vapiPhoneNumber, user.userPersonalPhone,
+          user.isAgentActive || false, user.customPromptTemplate, user.profession,
+          user.planId, user.minutesIncluded || 0, user.minutesRemaining || 0,
+          user.minutesConsumed || 0, user.dateRenouvellement,
+          user.referralCode, user.referredByCode, user.bonusMinutes || 0, user.referralCount || 0
+        ];
+        
+        console.log('[DB] Query parameters:');
+        console.log('[DB] 1. email:', params[0]);
+        console.log('[DB] 2. name:', params[1]);
+        console.log('[DB] 3. phone_number:', params[2]);
+        console.log('[DB] 4. language:', params[3]);
+        console.log('[DB] 5. timezone:', params[4]);
+        console.log('[DB] 6. role:', params[5]);
+        console.log('[DB] 7. password_hash:', params[6] ? '[REDACTED]' : 'NULL');
+        console.log('[DB] 8. vapi_agent_id:', params[7]);
+        console.log('[DB] 9. vapi_phone_number:', params[8]);
+        console.log('[DB] 10. user_personal_phone:', params[9]);
+        console.log('[DB] 11. is_agent_active:', params[10]);
+        console.log('[DB] 12. custom_prompt_template:', params[11]);
+        console.log('[DB] 13. profession:', params[12]);
+        console.log('[DB] 14. plan_id:', params[13]);
+        console.log('[DB] 15. minutes_included:', params[14]);
+        console.log('[DB] 16. minutes_remaining:', params[15]);
+        console.log('[DB] 17. minutes_consumed:', params[16]);
+        console.log('[DB] 18. date_renouvellement:', params[17]);
+        console.log('[DB] 19. referral_code:', params[18]);
+        console.log('[DB] 20. referred_by_code:', params[19]);
+        console.log('[DB] 21. bonus_minutes:', params[20]);
+        console.log('[DB] 22. referral_count:', params[21]);
+        
+        console.log('[DB] Executing INSERT query...');
         const result = await pool.query(
           `INSERT INTO users (
             email, name, phone_number, language, timezone, role, password_hash,
@@ -134,20 +169,19 @@ export const db = {
             referral_code as "referralCode", referred_by_code as "referredByCode",
             bonus_minutes as "bonusMinutes", referral_count as "referralCount",
             registration_date as "registrationDate", created_at as "createdAt"`,
-          [
-            user.email, user.name, user.phoneNumber, user.language || 'fr',
-            user.timezone || 'Europe/Paris', user.role || 'user', user.passwordHash,
-            user.vapiAgentId, user.vapiPhoneNumber, user.userPersonalPhone,
-            user.isAgentActive || false, user.customPromptTemplate, user.profession,
-            user.planId, user.minutesIncluded || 0, user.minutesRemaining || 0,
-            user.minutesConsumed || 0, user.dateRenouvellement,
-            user.referralCode, user.referredByCode, user.bonusMinutes || 0, user.referralCount || 0
-          ]
+          params
         );
         
+        console.log('[DB] User created successfully. ID:', result.rows[0]?.id);
+        console.log('[DB] Returned user data:', JSON.stringify(result.rows[0], null, 2));
+        
         return result.rows[0];
-      } catch (error) {
+      } catch (error: any) {
         console.error('[DB] Error creating user:', error);
+        console.error('[DB] Error code:', error.code);
+        console.error('[DB] Error detail:', error.detail);
+        console.error('[DB] Error message:', error.message);
+        console.error('[DB] Error stack:', error.stack);
         throw error;
       }
     },
