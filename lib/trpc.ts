@@ -15,7 +15,6 @@ const getBaseUrl = () => {
   
   if (!url) {
     console.error('[tRPC] ❌ ERROR: EXPO_PUBLIC_RORK_API_BASE_URL is not set!');
-    alert('Configuration Error: API URL is not configured. Please set EXPO_PUBLIC_RORK_API_BASE_URL in your environment variables.');
     throw new Error('API URL not configured. Please set EXPO_PUBLIC_RORK_API_BASE_URL');
   }
   
@@ -69,11 +68,6 @@ export const trpcClient = trpc.createClient({
           console.error('[tRPC] ❌ Error stack:', error?.stack);
           console.error('[tRPC] ❌ Full error object:', error);
           console.error('[tRPC] ❌ ========================================');
-          
-          alert(`Network Error: Cannot reach the API server at ${input}. Please check:
-1. Your Railway backend is running
-2. EXPO_PUBLIC_RORK_API_BASE_URL is correct
-3. Your internet connection`);
           
           throw error;
         });
