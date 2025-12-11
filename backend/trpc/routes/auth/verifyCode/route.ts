@@ -10,9 +10,9 @@ export const verifyCodeProcedure = publicProcedure
     console.log('[SMS Verification] Verifying code for:', input.phoneNumber);
     console.log('[SMS Verification] Code received:', input.code);
     
-    console.log('[SMS Verification] NOTE: Mock verification - accepting code "123456" for testing');
+    console.log('[SMS Verification] NOTE: Mock verification - accepting code "1234" for testing');
     
-    if (input.code === '123456') {
+    if (input.code === '1234') {
       return { 
         verified: true, 
         message: 'Numéro vérifié avec succès'
@@ -21,6 +21,6 @@ export const verifyCodeProcedure = publicProcedure
     
     return { 
       verified: false, 
-      message: 'Code incorrect. Utilisez 123456 pour le test.'
+      message: 'Code incorrect. Utilisez 1234 pour le test.'
     };
   });

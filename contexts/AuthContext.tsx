@@ -22,6 +22,7 @@ export const [AuthProvider, useAuth] = createContextHook(
 
         const response = await registerMutation.mutateAsync({
           email,
+          password: _password,
           name,
           phoneNumber,
           language: 'fr',

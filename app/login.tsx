@@ -51,8 +51,8 @@ export default function LoginScreen() {
   const verifyCodeMutation = trpc.auth.verifyCode.useMutation();
 
   const handleVerifyCode = async () => {
-    if (!verificationCode || verificationCode.length !== 6) {
-      Alert.alert('Erreur', 'Veuillez entrer un code à 6 chiffres');
+    if (!verificationCode || verificationCode.length !== 4) {
+      Alert.alert('Erreur', 'Veuillez entrer le code à 4 chiffres (1234)');
       return;
     }
 
@@ -134,8 +134,20 @@ export default function LoginScreen() {
         router.replace('/(tabs)');
       } else {
         const fullPhoneNumber = `${selectedCountry.dialCode}${phoneNumber}`;
-        await register(email, password, name, fullPhoneNumber);
-        router.replace('/pricing');
+        
+        setPendingUserData({
+          email,
+          password,
+          name,
+          phoneNumber: fullPhoneNumber,
+        });
+        
+        await sendCodeMutation.mutateAsync({ 
+          phoneNumber: fullPhoneNumber,
+          countryCode: selectedCountry.dialCode 
+        });
+        
+        setVerificationStep('verify');
       }
     } catch (error) {
       Alert.alert(
@@ -165,7 +177,7 @@ export default function LoginScreen() {
               </View>
               <Text style={styles.title}>Vérification</Text>
               <Text style={styles.subtitle}>
-                Entrez le code à 6 chiffres envoyé à votre numéro
+                Entrez le code à 4 chiffres envoyé à votre numéro
               </Text>
               <Text style={styles.phoneVerification}>
                 {pendingUserData?.phoneNumber}
@@ -177,16 +189,16 @@ export default function LoginScreen() {
                 <Text style={styles.label}>Code de vérification</Text>
                 <TextInput
                   style={styles.verificationInput}
-                  placeholder="123456"
+                  placeholder="1234"
                   placeholderTextColor="#64748B"
                   value={verificationCode}
                   onChangeText={setVerificationCode}
                   keyboardType="number-pad"
-                  maxLength={6}
+                  maxLength={4}
                   autoFocus
                 />
                 <Text style={styles.hint}>
-                  Pour le test, utilisez le code: 123456
+                  Pour le test, utilisez le code: 1234
                 </Text>
               </View>
 

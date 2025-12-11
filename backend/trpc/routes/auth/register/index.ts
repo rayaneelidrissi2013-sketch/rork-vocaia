@@ -8,6 +8,7 @@ export const registerProcedure = publicProcedure
   .input(
     z.object({
       email: z.string().email(),
+      password: z.string().min(6),
       name: z.string(),
       phoneNumber: z.string(),
       language: z.string().default('fr'),
@@ -26,8 +27,7 @@ export const registerProcedure = publicProcedure
       }
       console.log('[REGISTER] Step 2: User does not exist, proceeding with registration');
 
-      const tempPassword = crypto.randomBytes(16).toString('hex');
-      const passwordHash = await bcrypt.hash(tempPassword, 10);
+      const passwordHash = await bcrypt.hash(input.password, 10);
       console.log('[REGISTER] Step 3: Password hashed successfully');
 
       const referralCode = crypto.randomBytes(4).toString('hex').toUpperCase();

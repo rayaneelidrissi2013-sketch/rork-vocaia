@@ -9,14 +9,14 @@ export const sendVerificationCodeProcedure = publicProcedure
   .mutation(async ({ input }) => {
     console.log('[SMS Verification] Sending code to:', input.countryCode + input.phoneNumber);
     
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = '1234';
     
-    console.log('[SMS Verification] Generated code:', code);
-    console.log('[SMS Verification] NOTE: This is a mock implementation. In production, integrate with Vapi.ai API');
+    console.log('[SMS Verification] Demo code:', code);
+    console.log('[SMS Verification] NOTE: This is a demo implementation using code 1234. In production, integrate with SMS provider like Twilio.');
     
     return { 
       success: true, 
-      message: 'Code de vérification envoyé',
+      message: 'Code de vérification envoyé (utilisez 1234 pour le test)',
       mockCode: code
     };
   });
