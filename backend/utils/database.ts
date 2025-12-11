@@ -110,18 +110,19 @@ export const db = {
       }
     },
     
-    create: async (user: Omit<DBUser, 'id'>): Promise<DBUser> => {
+    create: async (user: Omit<DBUser, 'id' | 'createdAt' | 'registrationDate'>): Promise<DBUser> => {
       console.log('[DB] Creating user:', user.email);
       const pool = getPool();
       
       try {
         const result = await pool.query(
           `INSERT INTO users (
-            email, name, phone_number, language, timezone, role,
+            email, name, phone_number, language, timezone, role, password_hash,
             vapi_agent_id, vapi_phone_number, user_personal_phone, is_agent_active,
             custom_prompt_template, profession, plan_id, minutes_included,
-            minutes_remaining, minutes_consumed, date_renouvellement
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+            minutes_remaining, minutes_consumed, date_renouvellement,
+            referral_code, referred_by_code, bonus_minutes, referral_count
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
           RETURNING 
             id, email, name, phone_number as "phoneNumber", language, timezone, role,
             vapi_agent_id as "vapiAgentId", vapi_phone_number as "vapiPhoneNumber",
@@ -130,14 +131,17 @@ export const db = {
             plan_id as "planId", minutes_included as "minutesIncluded",
             minutes_remaining as "minutesRemaining", minutes_consumed as "minutesConsumed",
             date_renouvellement as "dateRenouvellement",
+            referral_code as "referralCode", referred_by_code as "referredByCode",
+            bonus_minutes as "bonusMinutes", referral_count as "referralCount",
             registration_date as "registrationDate", created_at as "createdAt"`,
           [
             user.email, user.name, user.phoneNumber, user.language || 'fr',
-            user.timezone || 'Europe/Paris', user.role || 'user',
+            user.timezone || 'Europe/Paris', user.role || 'user', user.passwordHash,
             user.vapiAgentId, user.vapiPhoneNumber, user.userPersonalPhone,
             user.isAgentActive || false, user.customPromptTemplate, user.profession,
             user.planId, user.minutesIncluded || 0, user.minutesRemaining || 0,
-            user.minutesConsumed || 0, user.dateRenouvellement
+            user.minutesConsumed || 0, user.dateRenouvellement,
+            user.referralCode, user.referredByCode, user.bonusMinutes || 0, user.referralCount || 0
           ]
         );
         

@@ -142,6 +142,7 @@ export interface UserSubscription {
 }
 
 export interface DBUser extends User {
+  passwordHash?: string;
   vapiAgentId?: string;
   vapiPhoneNumber?: string;
   userPersonalPhone?: string;
@@ -154,6 +155,10 @@ export interface DBUser extends User {
   minutesConsumed: number;
   dateRenouvellement?: string;
   registrationDate: string;
+  referralCode?: string;
+  referredByCode?: string;
+  bonusMinutes?: number;
+  referralCount?: number;
 }
 
 export interface DBCall extends Call {
