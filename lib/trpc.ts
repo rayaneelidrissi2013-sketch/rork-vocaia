@@ -8,9 +8,13 @@ export const trpc = createTRPCReact<AppRouter>();
 const getBaseUrl = () => {
   const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   
+  const fallbackUrl = 'https://vocaia-backend-clean-production.up.railway.app';
+  
   if (!envUrl) {
-    console.error('[tRPC] ❌ EXPO_PUBLIC_RORK_API_BASE_URL is not defined!');
-    throw new Error('EXPO_PUBLIC_RORK_API_BASE_URL environment variable is required');
+    console.warn('[tRPC] ⚠️ EXPO_PUBLIC_RORK_API_BASE_URL is not defined!');
+    console.warn('[tRPC] ⚠️ Using fallback URL:', fallbackUrl);
+    console.warn('[tRPC] ⚠️ Please configure EXPO_PUBLIC_RORK_API_BASE_URL in Rork settings');
+    return fallbackUrl;
   }
   
   const trimmedUrl = envUrl.trim();
