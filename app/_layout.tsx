@@ -166,6 +166,7 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(admin)" options={{ headerShown: false }} />
       <Stack.Screen name="call/[id]" options={{ headerShown: true, title: "Détails de l'appel" }} />
+      <Stack.Screen name="run-migration" options={{ headerShown: true, title: "Migration SQL" }} />
       <Stack.Screen name="+not-found" options={{ headerShown: false }} />
     </Stack>
   );
