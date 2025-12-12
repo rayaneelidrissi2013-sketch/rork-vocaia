@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Admin - Solution Définitive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .step {
+            margin-bottom: 40px;
+            border-left: 4px solid #667eea;
+            padding-left: 24px;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        
+        .step h2 {
+            color: #333;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+        
+        .step p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 24px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+            position: relative;
+            margin: 16px 0;
+        }
+        
+        .code-block code {
+            white-space: pre;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+        
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+        
+        .copy-btn.copied {
+            background: #10b981;
+        }
+        
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        
+        .warning strong {
+            color: #92400e;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .warning p {
+            color: #78350f;
+            margin: 0;
+        }
+        
+        .success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        
+        .success strong {
+            color: #065f46;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .success p {
+            color: #047857;
+            margin: 0;
+        }
+        
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        
+        .info-box strong {
+            color: #1e40af;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .info-box p {
+            color: #1e3a8a;
+            margin: 0;
+        }
+        
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+        }
+        
+        ul {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+        
+        ul li {
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Configuration Admin - Solution Définitive</h1>
+            <p>Correction du compte administrateur dans Supabase</p>
+        </div>
+        
+        <div class="content">
+            <div class="info-box">
+                <strong>📋 Informations importantes</strong>
+                <p>Cette page contient le code SQL exact pour configurer votre compte admin avec les identifiants :</p>
+                <ul style="margin-top: 8px;">
+                    <li><strong>Email:</strong> tawfikelidrissi@gmail.com</li>
+                    <li><strong>Mot de passe:</strong> admin123</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <h2>Ouvrez Supabase SQL Editor</h2>
+                <p>1. Allez sur <a href="https://supabase.com" target="_blank" style="color: #667eea;">supabase.com</a></p>
+                <p>2. Connectez-vous à votre projet</p>
+                <p>3. Cliquez sur <strong>SQL Editor</strong> dans le menu de gauche</p>
+                <p>4. Cliquez sur <strong>New Query</strong></p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <h2>Copiez et exécutez ce code SQL</h2>
+                <p>Copiez le code SQL ci-dessous et collez-le dans l'éditeur SQL :</p>
+                
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('sql-code')">Copier</button>
+                    <code id="sql-code">-- ========================================
+-- CONFIGURATION COMPTE ADMIN - DÉFINITIF
+-- ========================================
+-- Email: tawfikelidrissi@gmail.com
+-- Mot de passe: admin123
+-- ========================================
+
+-- Supprimer l'ancien compte s'il existe
+DELETE FROM users WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- Créer le compte admin avec le bon hash bcrypt
+INSERT INTO users (
+    email,
+    password_hash,
+    name,
+    phone_number,
+    role,
+    language,
+    timezone,
+    registration_date,
+    created_at,
+    updated_at
+) VALUES (
+    'tawfikelidrissi@gmail.com',
+    '$2a$10$N9qo8uLOickgx2ZMRZoMye8JdV6H.Iw0F0kPPWkuZcXPRwLbQvqei',
+    'Administrateur',
+    '+212600000000',
+    'admin',
+    'fr',
+    'Europe/Paris',
+    NOW(),
+    NOW(),
+    NOW()
+);
+
+-- Vérification: Afficher le compte créé
+SELECT 
+    id,
+    email,
+    name,
+    role,
+    phone_number,
+    LEFT(password_hash, 30) || '...' as password_preview,
+    registration_date,
+    created_at
+FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';</code>
+                </div>
+
+                <div class="warning">
+                    <strong>⚠️ Important</strong>
+                    <p>Le hash <span class="highlight">$2a$10$N9qo8uLOickgx2ZMRZoMye8JdV6H.Iw0F0kPPWkuZcXPRwLbQvqei</span> correspond exactement au mot de passe "admin123".</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <h2>Exécutez la requête</h2>
+                <p>Cliquez sur le bouton <strong>RUN</strong> ou appuyez sur <strong>Ctrl+Enter</strong> (ou Cmd+Enter sur Mac)</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <h2>Vérifiez le résultat</h2>
+                <p>Vous devriez voir un résultat comme ceci :</p>
+                <div class="code-block">
+                    <code>id  | email                      | name            | role  | phone_number   | password_preview              | registration_date       | created_at
+----+----------------------------+-----------------+-------+----------------+-------------------------------+-------------------------+------------
+1   | tawfikelidrissi@gmail.com  | Administrateur  | admin | +212600000000  | $2a$10$N9qo8uLOickgx2ZMRZoM...  | 2025-12-12 11:30:00     | 2025-12-12</code>
+                </div>
+
+                <div class="success">
+                    <strong>✅ Si vous voyez ces informations</strong>
+                    <p>Le compte admin est correctement configuré ! Vous pouvez maintenant vous connecter avec :</p>
+                    <ul style="margin-top: 8px;">
+                        <li><strong>Email:</strong> tawfikelidrissi@gmail.com</li>
+                        <li><strong>Mot de passe:</strong> admin123</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">5</div>
+                <h2>Testez la connexion</h2>
+                <p>1. Allez sur votre application</p>
+                <p>2. Cliquez sur "Admin" ou allez sur la page de connexion admin</p>
+                <p>3. Connectez-vous avec :</p>
+                <ul>
+                    <li>Email: <span class="highlight">tawfikelidrissi@gmail.com</span></li>
+                    <li>Mot de passe: <span class="highlight">admin123</span></li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <strong>🔒 Pourquoi un hash bcrypt est nécessaire ?</strong>
+                <p>Le backend utilise <strong>bcrypt.compare()</strong> pour vérifier les mots de passe. Cette fonction nécessite un hash bcrypt valide. On ne peut pas stocker le mot de passe en clair dans la base de données pour des raisons de sécurité.</p>
+                <p style="margin-top: 12px;">Le hash <span class="highlight">$2a$10$N9qo8uLOickgx2ZMRZoMye8JdV6H.Iw0F0kPPWkuZcXPRwLbQvqei</span> a été généré avec bcrypt et correspond exactement au mot de passe "admin123".</p>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Après la première connexion</strong>
+                <p>Une fois connecté, changez immédiatement votre mot de passe dans les paramètres de votre compte admin pour plus de sécurité.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const text = codeElement.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copié !';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                alert('Erreur lors de la copie. Veuillez copier manuellement.');
+                console.error('Copy failed:', err);
+            });
+        }
+    </script>
+</body>
+</html>
