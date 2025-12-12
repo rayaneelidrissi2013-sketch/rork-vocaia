@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration du Compte Admin - VocaIA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+            margin-top: 25px;
+        }
+
+        .icon {
+            font-size: 28px;
+        }
+
+        .problem-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .problem-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .problem-box p {
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        .solution-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .solution-box h3 {
+            color: #155724;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .solution-box p {
+            color: #155724;
+            line-height: 1.6;
+        }
+
+        .steps {
+            counter-reset: step-counter;
+        }
+
+        .step {
+            background: #f8f9fa;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            position: relative;
+        }
+
+        .step::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: -20px;
+            top: 20px;
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .step h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            margin-top: 0;
+        }
+
+        .step p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            position: relative;
+            margin-top: 15px;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .info-box p {
+            color: #0c5460;
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .warning-box p {
+            color: #856404;
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .success-box h3 {
+            color: #155724;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .credentials {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .credentials p {
+            color: #155724;
+            font-family: monospace;
+            font-size: 16px;
+            margin: 8px 0;
+        }
+
+        .credentials strong {
+            color: #0a3d1f;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .footer p {
+            color: #6c757d;
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+
+            .header, .content, .footer {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .step {
+                padding-left: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Configuration du Compte Admin</h1>
+            <p>VocaIA - Solution rapide et efficace</p>
+        </div>
+
+        <div class="content">
+            <!-- Problème -->
+            <div class="section">
+                <h2><span class="icon">⚠️</span> Diagnostic du Problème</h2>
+                
+                <div class="problem-box">
+                    <h3>Pourquoi la connexion admin échoue ?</h3>
+                    <p>Le compte admin existe dans votre base de données Supabase, mais le hash du mot de passe "admin123" ne correspond pas exactement au hash attendu par l'application.</p>
+                    <p><strong>Cause :</strong> Lors de la migration automatique, le hash du mot de passe a été généré différemment du hash créé par bcrypt dans l'application.</p>
+                </div>
+
+                <div class="solution-box">
+                    <h3>✅ Solution</h3>
+                    <p>Nous allons mettre à jour le compte admin avec le bon hash bcrypt pour le mot de passe "admin123".</p>
+                </div>
+            </div>
+
+            <!-- Étapes -->
+            <div class="section">
+                <h2><span class="icon">📋</span> Instructions Étape par Étape</h2>
+                
+                <div class="steps">
+                    <div class="step">
+                        <h3>Connectez-vous à Supabase</h3>
+                        <p>Allez sur <a href="https://supabase.com" target="_blank">supabase.com</a> et connectez-vous à votre projet.</p>
+                    </div>
+
+                    <div class="step">
+                        <h3>Ouvrez le SQL Editor</h3>
+                        <p>Dans le menu de gauche, cliquez sur <strong>SQL Editor</strong> (icône de base de données).</p>
+                    </div>
+
+                    <div class="step">
+                        <h3>Copiez et Collez le Code SQL</h3>
+                        <p>Copiez le code SQL ci-dessous et collez-le dans l'éditeur SQL :</p>
+                        
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyToClipboard('sql-code', this)">📋 Copier</button>
+                            <pre id="sql-code">-- ======================================
+-- CONFIGURATION DU COMPTE ADMIN
+-- ======================================
+-- Ce script met à jour le compte admin avec le bon hash
+-- Email: tawfikelidrissi@gmail.com
+-- Password: admin123
+-- ======================================
+
+-- Étape 1: Vérifier si le compte admin existe
+SELECT id, email, name, role, registration_date 
+FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- Étape 2: Mettre à jour le mot de passe avec le bon hash bcrypt
+-- Hash bcrypt pour "admin123": $2b$10$BnMLy3YWxZHCnC3UnKKy.eC0YNaM2EFE4cGVj9cLhiQZ8PmC.nYru
+UPDATE users 
+SET 
+  password_hash = '$2b$10$BnMLy3YWxZHCnC3UnKKy.eC0YNaM2EFE4cGVj9cLhiQZ8PmC.nYru',
+  role = 'admin',
+  updated_at = NOW()
+WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- Étape 3: Vérifier que la mise à jour a réussi
+SELECT id, email, name, role, password_hash, updated_at 
+FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- Si aucun compte n'existe, créer le compte admin
+INSERT INTO users (
+  email, 
+  password_hash, 
+  name, 
+  phone_number, 
+  role, 
+  language,
+  timezone,
+  registration_date,
+  created_at,
+  updated_at
+)
+VALUES (
+  'tawfikelidrissi@gmail.com',
+  '$2b$10$BnMLy3YWxZHCnC3UnKKy.eC0YNaM2EFE4cGVj9cLhiQZ8PmC.nYru',
+  'Administrateur',
+  '+212600000000',
+  'admin',
+  'fr',
+  'Europe/Paris',
+  NOW(),
+  NOW(),
+  NOW()
+)
+ON CONFLICT (email) DO UPDATE
+SET 
+  password_hash = EXCLUDED.password_hash,
+  role = EXCLUDED.role,
+  updated_at = NOW();
+
+-- Vérification finale
+SELECT 
+  id,
+  email,
+  name,
+  role,
+  phone_number,
+  LEFT(password_hash, 20) || '...' as password_hash_preview,
+  registration_date,
+  updated_at
+FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';</pre>
+                        </div>
+
+                        <div class="info-box">
+                            <p><strong>💡 Astuce :</strong> Ce code SQL est sûr et ne supprime rien. Il met seulement à jour ou crée le compte admin.</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3>Exécutez le Script</h3>
+                        <p>Cliquez sur le bouton <strong>"Run"</strong> ou appuyez sur <strong>Ctrl + Enter</strong> (Cmd + Enter sur Mac) pour exécuter le script.</p>
+                    </div>
+
+                    <div class="step">
+                        <h3>Vérifiez les Résultats</h3>
+                        <p>Vous devriez voir plusieurs résultats dans la console en bas :</p>
+                        <div class="info-box">
+                            <p>✓ <strong>Premier SELECT :</strong> Affiche le compte admin actuel</p>
+                            <p>✓ <strong>UPDATE :</strong> Affiche "UPDATE 1" (1 ligne mise à jour)</p>
+                            <p>✓ <strong>Deuxième SELECT :</strong> Montre le compte avec le nouveau hash</p>
+                            <p>✓ <strong>INSERT/UPDATE :</strong> Confirme la création/mise à jour</p>
+                            <p>✓ <strong>Vérification finale :</strong> Affiche tous les détails du compte</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3>Testez la Connexion Admin</h3>
+                        <p>Retournez sur votre application et essayez de vous connecter avec :</p>
+                        
+                        <div class="success-box">
+                            <h3>🔑 Identifiants Admin</h3>
+                            <div class="credentials">
+                                <p><strong>Email :</strong> tawfikelidrissi@gmail.com</p>
+                                <p><strong>Mot de passe :</strong> admin123</p>
+                            </div>
+                        </div>
+
+                        <div class="warning-box">
+                            <p><strong>⚠️ Important :</strong> Pour des raisons de sécurité, changez ce mot de passe dès que possible via l'interface admin !</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations Techniques -->
+            <div class="section">
+                <h2><span class="icon">🔧</span> Informations Techniques</h2>
+
+                <h3>Qu'est-ce qu'un hash bcrypt ?</h3>
+                <div class="info-box">
+                    <p>Un hash bcrypt est une version cryptée d'un mot de passe. C'est une méthode très sécurisée pour stocker les mots de passe.</p>
+                    <p><strong>Exemple :</strong> Le mot de passe "admin123" devient le hash sécurisé :</p>
+                    <p style="font-family: monospace; font-size: 12px; word-break: break-all;">
+                        $2b$10$BnMLy3YWxZHCnC3UnKKy.eC0YNaM2EFE4cGVj9cLhiQZ8PmC.nYru
+                    </p>
+                </div>
+
+                <h3>Pourquoi utiliser ON CONFLICT ?</h3>
+                <div class="info-box">
+                    <p>La clause <code>ON CONFLICT</code> permet de mettre à jour le compte s'il existe déjà, ou de le créer s'il n'existe pas. C'est une opération sûre qui ne causera pas d'erreur.</p>
+                </div>
+
+                <h3>Comment vérifier manuellement ?</h3>
+                <p>Vous pouvez exécuter ce SELECT pour vérifier le compte admin à tout moment :</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard('verify-code', this)">📋 Copier</button>
+                    <pre id="verify-code">SELECT 
+  id,
+  email,
+  name,
+  role,
+  phone_number,
+  registration_date,
+  updated_at
+FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';</pre>
+                </div>
+            </div>
+
+            <!-- Dépannage -->
+            <div class="section">
+                <h2><span class="icon">🛠️</span> Dépannage</h2>
+
+                <h3>❌ Erreur : "relation users does not exist"</h3>
+                <div class="warning-box">
+                    <p><strong>Problème :</strong> La table users n'existe pas dans votre base de données.</p>
+                    <p><strong>Solution :</strong> Exécutez d'abord la migration complète du schéma (schema.sql) avant ce script.</p>
+                </div>
+
+                <h3>❌ La connexion échoue toujours</h3>
+                <div class="warning-box">
+                    <p><strong>Vérifiez :</strong></p>
+                    <p>1. Que le script SQL s'est exécuté sans erreur</p>
+                    <p>2. Que vous utilisez bien l'email : tawfikelidrissi@gmail.com</p>
+                    <p>3. Que vous utilisez bien le mot de passe : admin123</p>
+                    <p>4. Que votre variable Railway DATABASE_URL pointe bien vers Supabase</p>
+                    <p>5. Vérifiez les logs Railway pour voir les détails de l'erreur</p>
+                </div>
+
+                <h3>✅ La connexion fonctionne !</h3>
+                <div class="success-box">
+                    <h3>🎉 Félicitations !</h3>
+                    <p>Votre compte admin est maintenant configuré correctement.</p>
+                    <p><strong>N'oubliez pas de changer le mot de passe par défaut !</strong></p>
+                </div>
+            </div>
+
+            <!-- Prochaines étapes -->
+            <div class="section">
+                <h2><span class="icon">🚀</span> Prochaines Étapes Recommandées</h2>
+
+                <div class="step">
+                    <h3>Changez le mot de passe admin</h3>
+                    <p>Dès que vous êtes connecté, allez dans les paramètres admin et changez le mot de passe par défaut pour quelque chose de plus sécurisé.</p>
+                </div>
+
+                <div class="step">
+                    <h3>Configurez les paramètres globaux</h3>
+                    <p>Accédez à la section "Paramètres Globaux" pour configurer les pays autorisés, les CGU, et autres paramètres de l'application.</p>
+                </div>
+
+                <div class="step">
+                    <h3>Testez les fonctionnalités</h3>
+                    <p>Vérifiez que toutes les fonctionnalités admin fonctionnent : gestion des utilisateurs, statistiques, plans tarifaires, etc.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>VocaIA</strong> - Plateforme de Gestion d'Assistant Vocal IA</p>
+            <p>Pour toute question, contactez le support technique</p>
+            <p style="margin-top: 15px; font-size: 12px;">
+                📅 Document généré le 12 décembre 2025
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(elementId, button) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copié !';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                alert('Erreur lors de la copie. Veuillez copier manuellement.');
+                console.error('Copy failed:', err);
+            });
+        }
+
+        // Message de bienvenue dans la console
+        console.log('%c🔐 Configuration du Compte Admin VocaIA', 'font-size: 20px; font-weight: bold; color: #667eea;');
+        console.log('%cSuivez les instructions sur cette page pour configurer votre compte admin.', 'font-size: 14px; color: #666;');
+    </script>
+</body>
+</html>
