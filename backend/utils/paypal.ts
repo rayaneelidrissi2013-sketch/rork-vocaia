@@ -1,6 +1,58 @@
-const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'live' 
-  ? 'https://api-m.paypal.com' 
-  : 'https://api-m.sandbox.paypal.com';
+import { Pool } from 'pg';
+
+let pool: Pool | null = null;
+
+const getPool = (): Pool => {
+  if (!pool) {
+    const databaseUrl = process.env.DATABASE_URL;
+    
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL_NOT_CONFIGURED');
+    }
+
+    pool = new Pool({
+      connectionString: databaseUrl,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    });
+  }
+
+  return pool;
+};
+
+interface PayPalSettings {
+  clientId: string;
+  clientSecret: string;
+  mode: 'sandbox' | 'live';
+}
+
+async function getPayPalSettings(): Promise<PayPalSettings> {
+  const db = getPool();
+  const result = await db.query(
+    `SELECT setting_key, setting_value 
+     FROM global_settings 
+     WHERE setting_key IN ('paypal_client_id', 'paypal_client_secret', 'paypal_mode')`
+  );
+
+  const settings: Record<string, string> = {};
+  result.rows.forEach((row: any) => {
+    settings[row.setting_key] = row.setting_value;
+  });
+
+  return {
+    clientId: settings.paypal_client_id || '',
+    clientSecret: settings.paypal_client_secret || '',
+    mode: (settings.paypal_mode || 'sandbox') as 'sandbox' | 'live',
+  };
+}
+
+function getPayPalApiBase(mode: 'sandbox' | 'live'): string {
+  return mode === 'live' 
+    ? 'https://api-m.paypal.com' 
+    : 'https://api-m.sandbox.paypal.com';
+}
 
 interface PayPalAccessToken {
   access_token: string;
@@ -15,13 +67,14 @@ async function getAccessToken(): Promise<string> {
     return cachedAccessToken;
   }
 
-  const clientId = process.env.PAYPAL_CLIENT_ID;
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+  const settings = await getPayPalSettings();
+  const { clientId, clientSecret, mode } = settings;
 
   if (!clientId || !clientSecret) {
     throw new Error('PayPal credentials not configured');
   }
 
+  const PAYPAL_API_BASE = getPayPalApiBase(mode);
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
   const response = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
@@ -51,6 +104,8 @@ export async function createSubscription(
   cancelUrl: string
 ): Promise<{ id: string; approvalUrl: string }> {
   const accessToken = await getAccessToken();
+  const settings = await getPayPalSettings();
+  const PAYPAL_API_BASE = getPayPalApiBase(settings.mode);
 
   const response = await fetch(`${PAYPAL_API_BASE}/v1/billing/subscriptions`, {
     method: 'POST',
@@ -87,6 +142,8 @@ export async function createSubscription(
 
 export async function getSubscriptionDetails(subscriptionId: string) {
   const accessToken = await getAccessToken();
+  const settings = await getPayPalSettings();
+  const PAYPAL_API_BASE = getPayPalApiBase(settings.mode);
 
   const response = await fetch(
     `${PAYPAL_API_BASE}/v1/billing/subscriptions/${subscriptionId}`,
@@ -111,6 +168,8 @@ export async function cancelSubscription(
   reason: string
 ): Promise<void> {
   const accessToken = await getAccessToken();
+  const settings = await getPayPalSettings();
+  const PAYPAL_API_BASE = getPayPalApiBase(settings.mode);
 
   const response = await fetch(
     `${PAYPAL_API_BASE}/v1/billing/subscriptions/${subscriptionId}/cancel`,
@@ -137,6 +196,8 @@ export async function chargeOverage(
   description: string
 ): Promise<{ transactionId: string; status: string }> {
   const accessToken = await getAccessToken();
+  const settings = await getPayPalSettings();
+  const PAYPAL_API_BASE = getPayPalApiBase(settings.mode);
 
   const response = await fetch(`${PAYPAL_API_BASE}/v2/payments/captures`, {
     method: 'POST',

@@ -2,6 +2,8 @@ import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { trpc } from '@/lib/trpc';
+import * as WebBrowser from 'expo-web-browser';
 import {
   View,
   Text,
@@ -26,9 +28,71 @@ export default function PricingScreen() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
+  const createSubscriptionMutation = trpc.billing.createSubscription.useMutation();
+
   const handleSubscribe = async (plan: SubscriptionPlan) => {
     if (plan.isEnterprise) {
       router.push('/enterprise-contact' as never);
+      return;
+    }
+
+    if (plan.id === 'gratuit') {
+      setSelectedPlan(plan.id);
+      setIsProcessing(true);
+
+      try {
+        console.log('[Pricing] User subscribing to free plan:', plan.id, plan.name);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const subscriptionData = {
+          planId: plan.id,
+          planName: plan.name,
+          minutesIncluded: plan.minutesIncluded,
+          minutesRemaining: plan.minutesIncluded,
+          price: plan.price,
+          renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        };
+        
+        console.log('[Pricing] Storing subscription data:', subscriptionData);
+        await AsyncStorage.setItem('user_subscription_mock', JSON.stringify(subscriptionData));
+        
+        const currentSettings = await AsyncStorage.getItem('ai_agent_settings');
+        if (!currentSettings) {
+          const defaultSettings = {
+            isEnabled: false,
+            language: 'fr',
+            timezone: 'Europe/Paris',
+          };
+          console.log('[Pricing] Initializing agent settings with isEnabled: false');
+          await AsyncStorage.setItem('ai_agent_settings', JSON.stringify(defaultSettings));
+        } else {
+          const settings = JSON.parse(currentSettings);
+          if (settings.isEnabled) {
+            settings.isEnabled = false;
+            console.log('[Pricing] Resetting agent to disabled (isEnabled: false)');
+            await AsyncStorage.setItem('ai_agent_settings', JSON.stringify(settings));
+          }
+        }
+        
+        await setPlanActive();
+        
+        Alert.alert(
+          'Succès!',
+          `Vous avez souscrit au plan ${plan.name}. Vous disposez de ${plan.minutesIncluded} minute(s).`,
+          [
+            {
+              text: 'Continuer',
+              onPress: () => router.replace('/(tabs)'),
+            },
+          ]
+        );
+      } catch (error) {
+        console.error('[Pricing] Error subscribing to free plan:', error);
+        Alert.alert('Erreur', 'Une erreur est survenue');
+      } finally {
+        setIsProcessing(false);
+        setSelectedPlan(null);
+      }
       return;
     }
 
@@ -36,54 +100,28 @@ export default function PricingScreen() {
     setIsProcessing(true);
 
     try {
-      console.log('[Pricing] User subscribing to plan:', plan.id, plan.name);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('[Pricing] User subscribing to paid plan:', plan.id, plan.name);
       
-      const subscriptionData = {
+      const userId = 'mock-user-id';
+      const returnUrl = `${window.location.origin}/pricing?success=true&planId=${plan.id}`;
+      const cancelUrl = `${window.location.origin}/pricing?cancelled=true`;
+
+      const result = await createSubscriptionMutation.mutateAsync({
         planId: plan.id,
-        planName: plan.name,
-        minutesIncluded: plan.minutesIncluded,
-        minutesRemaining: plan.minutesIncluded,
-        price: plan.price,
-        renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      };
-      
-      console.log('[Pricing] Storing subscription data:', subscriptionData);
-      await AsyncStorage.setItem('user_subscription_mock', JSON.stringify(subscriptionData));
-      
-      const currentSettings = await AsyncStorage.getItem('ai_agent_settings');
-      if (!currentSettings) {
-        const defaultSettings = {
-          isEnabled: false,
-          language: 'fr',
-          timezone: 'Europe/Paris',
-        };
-        console.log('[Pricing] Initializing agent settings with isEnabled: false');
-        await AsyncStorage.setItem('ai_agent_settings', JSON.stringify(defaultSettings));
+        userId,
+        returnUrl,
+        cancelUrl,
+      });
+
+      if (result.success && result.approvalUrl) {
+        console.log('[Pricing] Redirecting to PayPal:', result.approvalUrl);
+        await WebBrowser.openBrowserAsync(result.approvalUrl);
       } else {
-        const settings = JSON.parse(currentSettings);
-        if (settings.isEnabled) {
-          settings.isEnabled = false;
-          console.log('[Pricing] Resetting agent to disabled (isEnabled: false)');
-          await AsyncStorage.setItem('ai_agent_settings', JSON.stringify(settings));
-        }
+        throw new Error('Failed to create PayPal subscription');
       }
-      
-      await setPlanActive();
-      
-      Alert.alert(
-        'Succès!',
-        `Vous avez souscrit au plan ${plan.name}. Vous disposez de ${plan.minutesIncluded} minute(s).`,
-        [
-          {
-            text: 'Continuer',
-            onPress: () => router.replace('/(tabs)'),
-          },
-        ]
-      );
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Pricing] Error subscribing:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors du paiement');
+      Alert.alert('Erreur', error.message || 'Une erreur est survenue lors du paiement');
     } finally {
       setIsProcessing(false);
       setSelectedPlan(null);
@@ -155,7 +193,7 @@ export default function PricingScreen() {
                 plan.isRecommended && styles.subscribeButtonTextRecommended,
               ]}
             >
-              {plan.isEnterprise ? 'Demander un devis' : plan.id === 'free' ? "Démarrer l'essai gratuit" : "S'abonner"}
+              {plan.isEnterprise ? 'Demander un devis' : plan.id === 'gratuit' ? "Démarrer l'essai gratuit" : "S'abonner avec PayPal"}
             </Text>
           )}
         </TouchableOpacity>

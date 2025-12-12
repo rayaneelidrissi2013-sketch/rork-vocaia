@@ -27,6 +27,8 @@ import { deletePricingPlanProcedure } from "./routes/admin/deletePricingPlan/rou
 import { getAllowedCountriesProcedure } from "./routes/admin/getAllowedCountries/route";
 import { updateAllowedCountriesProcedure } from "./routes/admin/updateAllowedCountries/route";
 import { runMigrationProcedure } from "./routes/admin/runMigration/route";
+import { getPayPalSettingsProcedure } from "./routes/admin/getPayPalSettings/route";
+import { updatePayPalSettingsProcedure } from "./routes/admin/updatePayPalSettings/route";
 
 // calls
 import getUserCallsRoute from "./routes/calls/getUserCalls/route";
@@ -79,6 +81,8 @@ export const appRouter = createTRPCRouter({
     getAllowedCountries: getAllowedCountriesProcedure,
     updateAllowedCountries: updateAllowedCountriesProcedure,
     runMigration: runMigrationProcedure,
+    getPayPalSettings: getPayPalSettingsProcedure,
+    updatePayPalSettings: updatePayPalSettingsProcedure,
   }),
 
   calls: createTRPCRouter({

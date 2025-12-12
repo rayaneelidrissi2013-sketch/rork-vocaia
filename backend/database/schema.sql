@@ -240,7 +240,10 @@ VALUES
   ('default_max_tokens', '250', 'Nombre maximum de tokens par défaut'),
   ('default_voice_type', 'female', 'Type de voix par défaut'),
   ('overage_rate', '0.55', 'Tarif par minute en dépassement ($)'),
-  ('allowed_countries', '["+1"]', 'Liste des codes pays autorisés pour l''inscription (format JSON array)')
+  ('allowed_countries', '["+1"]', 'Liste des codes pays autorisés pour l''inscription (format JSON array)'),
+  ('paypal_client_id', '', 'Client ID PayPal pour les paiements'),
+  ('paypal_client_secret', '', 'Client Secret PayPal pour les paiements'),
+  ('paypal_mode', 'sandbox', 'Mode PayPal: sandbox ou live')
 ON CONFLICT (setting_key) DO NOTHING;
 
 -- Table de vérification SMS (temporaire)

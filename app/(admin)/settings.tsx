@@ -59,7 +59,7 @@ export default function AdminSettings() {
   const [localKeys, setLocalKeys] = useState(apiKeys);
   const [localSettings, setLocalSettings] = useState(globalSettings);
   const [showSecrets, setShowSecrets] = useState<{ [key: string]: boolean }>({});
-  const [activeSection, setActiveSection] = useState<'keys' | 'agent' | 'pricing' | 'cgu' | 'countries'>('keys');
+  const [activeSection, setActiveSection] = useState<'keys' | 'agent' | 'pricing' | 'cgu' | 'countries' | 'paypal'>('keys');
   const [editingPlan, setEditingPlan] = useState<string | null>(null);
   const [planEdits, setPlanEdits] = useState<{ [key: string]: Partial<PlanEditState> }>({});
   const [isCreatingPlan, setIsCreatingPlan] = useState<boolean>(false);
@@ -88,6 +88,16 @@ export default function AdminSettings() {
   });
 
   const allowedCountriesQuery = trpc.admin.getAllowedCountries.useQuery();
+  const paypalSettingsQuery = trpc.admin.getPayPalSettings.useQuery();
+  const updatePayPalSettingsMutation = trpc.admin.updatePayPalSettings.useMutation({
+    onSuccess: () => {
+      paypalSettingsQuery.refetch();
+      Alert.alert('Succès', 'Les paramètres PayPal ont été mis à jour');
+    },
+    onError: (error) => {
+      Alert.alert('Erreur', error.message);
+    },
+  });
   const updateAllowedCountriesMutation = trpc.admin.updateAllowedCountries.useMutation({
     onSuccess: () => {
       allowedCountriesQuery.refetch();
@@ -102,6 +112,11 @@ export default function AdminSettings() {
   const [newCountryCode, setNewCountryCode] = React.useState<string>('');
   
   const [localCGU, setLocalCGU] = useState<string>('');
+  const [localPayPalSettings, setLocalPayPalSettings] = useState<{
+    clientId: string;
+    clientSecret: string;
+    mode: 'sandbox' | 'live';
+  }>({ clientId: '', clientSecret: '', mode: 'sandbox' });
   
   React.useEffect(() => {
     if (cguQuery.data?.cgu) {
@@ -114,6 +129,16 @@ export default function AdminSettings() {
       setLocalAllowedCountries(allowedCountriesQuery.data.allowedCountries);
     }
   }, [allowedCountriesQuery.data]);
+
+  React.useEffect(() => {
+    if (paypalSettingsQuery.data) {
+      setLocalPayPalSettings({
+        clientId: paypalSettingsQuery.data.clientId,
+        clientSecret: paypalSettingsQuery.data.clientSecret,
+        mode: paypalSettingsQuery.data.mode as 'sandbox' | 'live',
+      });
+    }
+  }, [paypalSettingsQuery.data]);
   const updatePlanMutation = trpc.admin.updatePricingPlan.useMutation({
     onSuccess: () => {
       pricingPlansQuery.refetch();
@@ -417,6 +442,15 @@ export default function AdminSettings() {
           <Globe size={18} color={activeSection === 'countries' ? '#8B5CF6' : '#64748B'} />
           <Text style={[styles.tabText, activeSection === 'countries' && styles.tabTextActive]}>
             Pays
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeSection === 'paypal' && styles.tabActive]}
+          onPress={() => setActiveSection('paypal')}
+        >
+          <DollarSign size={18} color={activeSection === 'paypal' ? '#8B5CF6' : '#64748B'} />
+          <Text style={[styles.tabText, activeSection === 'paypal' && styles.tabTextActive]}>
+            PayPal
           </Text>
         </TouchableOpacity>
       </View>
@@ -978,6 +1012,110 @@ export default function AdminSettings() {
           </>
         )}
 
+        {activeSection === 'paypal' && (
+          <>
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <DollarSign size={24} color="#10B981" />
+                <Text style={styles.sectionTitle}>Configuration PayPal</Text>
+              </View>
+              <Text style={styles.pricingDescription}>
+                Configurez vos identifiants PayPal pour activer les paiements dans votre application.
+              </Text>
+
+              <View style={styles.card}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Mode PayPal</Text>
+                  <View style={styles.modeSelector}>
+                    <TouchableOpacity
+                      style={[
+                        styles.modeButton,
+                        localPayPalSettings.mode === 'sandbox' && styles.modeButtonActive,
+                      ]}
+                      onPress={() => setLocalPayPalSettings({ ...localPayPalSettings, mode: 'sandbox' })}
+                    >
+                      <Text
+                        style={[
+                          styles.modeButtonText,
+                          localPayPalSettings.mode === 'sandbox' && styles.modeButtonTextActive,
+                        ]}
+                      >
+                        Sandbox (Test)
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.modeButton,
+                        localPayPalSettings.mode === 'live' && styles.modeButtonActive,
+                      ]}
+                      onPress={() => setLocalPayPalSettings({ ...localPayPalSettings, mode: 'live' })}
+                    >
+                      <Text
+                        style={[
+                          styles.modeButtonText,
+                          localPayPalSettings.mode === 'live' && styles.modeButtonTextActive,
+                        ]}
+                      >
+                        Live (Production)
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={styles.helpText}>
+                    Utilisez le mode Sandbox pour tester les paiements, et Live pour la production.
+                  </Text>
+                </View>
+
+                <SecretInput
+                  label="Client ID PayPal"
+                  value={localPayPalSettings.clientId}
+                  onChangeText={(text) => setLocalPayPalSettings({ ...localPayPalSettings, clientId: text })}
+                  fieldKey="paypalClientId"
+                  placeholder="AXxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                />
+
+                <SecretInput
+                  label="Client Secret PayPal"
+                  value={localPayPalSettings.clientSecret}
+                  onChangeText={(text) => setLocalPayPalSettings({ ...localPayPalSettings, clientSecret: text })}
+                  fieldKey="paypalClientSecret"
+                  placeholder="EXxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                />
+
+                <Text style={styles.helpText}>
+                  Obtenez vos identifiants PayPal depuis le{' '}
+                  <Text style={styles.linkText}>Dashboard PayPal Developer</Text>.
+                  {localPayPalSettings.mode === 'sandbox' ? 
+                    ' Utilisez les identifiants Sandbox pour les tests.' : 
+                    ' Utilisez les identifiants Live pour la production.'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={() => {
+                  if (!localPayPalSettings.clientId || !localPayPalSettings.clientSecret) {
+                    Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+                    return;
+                  }
+                  updatePayPalSettingsMutation.mutate(localPayPalSettings);
+                }}
+                disabled={updatePayPalSettingsMutation.isPending}
+              >
+                {updatePayPalSettingsMutation.isPending ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Save size={20} color="#fff" />
+                    <Text style={styles.saveButtonText}>Enregistrer PayPal</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
         {activeSection === 'countries' && (
           <>
             <View style={styles.section}>
@@ -1516,5 +1654,35 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#64748B',
     textAlign: 'center',
+  },
+  modeSelector: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modeButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#0F172A',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#334155',
+    alignItems: 'center',
+  },
+  modeButtonActive: {
+    backgroundColor: '#8B5CF6',
+    borderColor: '#8B5CF6',
+  },
+  modeButtonText: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: '#94A3B8',
+  },
+  modeButtonTextActive: {
+    color: '#fff',
+  },
+  linkText: {
+    color: '#8B5CF6',
+    fontWeight: '600' as const,
   },
 });
