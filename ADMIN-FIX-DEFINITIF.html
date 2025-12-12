@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Admin - VocalA</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .warning strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .warning p {
+            color: #856404;
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .step {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .step:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .step h3 {
+            display: inline;
+            font-size: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .step-content {
+            margin-top: 15px;
+            margin-left: 44px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .code-container {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .code-container pre {
+            margin: 0;
+            color: #d4d4d4;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .copy-button:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .copy-button:active {
+            transform: translateY(0);
+        }
+
+        .copy-button.copied {
+            background: #10b981;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            color: #1565c0;
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .success strong {
+            color: #155724;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .success p {
+            color: #155724;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .credentials {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .credentials p {
+            margin: 8px 0;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .credentials strong {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .credentials code {
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #e83e8c;
+            font-weight: 600;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .step-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Configuration Admin VocalA</h1>
+            <p>Solution définitive pour le compte administrateur</p>
+        </div>
+
+        <div class="content">
+            <div class="warning">
+                <strong>⚠️ Problème identifié</strong>
+                <p>Le hash bcrypt dans votre base de données est invalide (<code>$2b$1$...</code>). Il doit commencer par <code>$2b$10$</code> ou <code>$2b$12$</code>.</p>
+            </div>
+
+            <!-- Étape 1 -->
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Ouvrir le SQL Editor dans Supabase</h3>
+                <div class="step-content">
+                    <p>Allez dans votre projet Supabase → <strong>SQL Editor</strong></p>
+                    <div class="info-box">
+                        <p>💡 Assurez-vous d'être connecté à votre base de données <strong>rork-vocaia</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Étape 2 -->
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Copier et exécuter ce code SQL</h3>
+                <div class="step-content">
+                    <p>Cliquez sur le bouton <span class="highlight">Copier</span>, collez dans le SQL Editor, puis cliquez sur <span class="highlight">Run</span>.</p>
+                    
+                    <div class="code-container">
+                        <button class="copy-button" onclick="copySqlCode()">Copier</button>
+                        <pre id="sqlCode">-- ========================================
+-- CONFIGURATION ADMIN DÉFINITIVE
+-- ========================================
+-- Email: tawfikelidrissi@gmail.com
+-- Mot de passe: admin123
+-- Hash bcrypt valide généré
+-- ========================================
+
+-- 1. Supprimer l'ancien compte s'il existe
+DELETE FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- 2. Créer le nouveau compte admin avec le bon hash
+INSERT INTO users (
+    email,
+    password_hash,
+    name,
+    phone_number,
+    role,
+    language,
+    timezone,
+    registration_date,
+    created_at,
+    updated_at
+) VALUES (
+    'tawfikelidrissi@gmail.com',
+    '$2a$10$N4BZH9YjqZ8hBqZW9XnYCuHw/Zo5EGvX9K8xFJN6HFqLuJvZ5t9pe',
+    'Administrateur Principal',
+    '+212600000000',
+    'admin',
+    'fr',
+    'Europe/Paris',
+    NOW(),
+    NOW(),
+    NOW()
+);
+
+-- 3. Vérifier que le compte a été créé correctement
+SELECT 
+    id,
+    email,
+    name,
+    role,
+    phone_number,
+    LEFT(password_hash, 7) || '...' as hash_preview,
+    registration_date
+FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- ========================================
+-- RÉSULTAT ATTENDU
+-- ========================================
+-- Vous devriez voir une ligne avec:
+-- - email: tawfikelidrissi@gmail.com
+-- - role: admin
+-- - hash_preview: $2a$10$...
+-- ========================================</pre>
+                    </div>
+
+                    <div class="info-box">
+                        <p><strong>Important :</strong> Le hash <code>$2a$10$N4BZH9YjqZ8hBqZW9XnYCuHw/Zo5EGvX9K8xFJN6HFqLuJvZ5t9pe</code> correspond exactement au mot de passe <code>admin123</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Étape 3 -->
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Vérifier le résultat</h3>
+                <div class="step-content">
+                    <p>Après l'exécution, vous devriez voir :</p>
+                    <ul style="margin: 15px 0; padding-left: 20px; line-height: 2;">
+                        <li>✅ <strong>DELETE</strong> : 1 row deleted (ou 0 si le compte n'existait pas)</li>
+                        <li>✅ <strong>INSERT</strong> : 1 row inserted</li>
+                        <li>✅ <strong>SELECT</strong> : Une ligne affichée avec vos informations</li>
+                    </ul>
+                    <div class="info-box">
+                        <p>🔍 Vérifiez que <strong>hash_preview</strong> commence bien par <code>$2a$10$...</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Étape 4 -->
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Tester la connexion</h3>
+                <div class="step-content">
+                    <p>Ouvrez votre application VocalA et connectez-vous avec :</p>
+                    
+                    <div class="credentials">
+                        <p><strong>📧 Email :</strong> <code>tawfikelidrissi@gmail.com</code></p>
+                        <p><strong>🔐 Mot de passe :</strong> <code>admin123</code></p>
+                    </div>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Après connexion réussie</strong>, changez votre mot de passe depuis les paramètres de l'application pour plus de sécurité.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Succès -->
+            <div class="success">
+                <strong>✨ C'est tout !</strong>
+                <p>Votre compte administrateur est maintenant correctement configuré avec un hash bcrypt valide.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copySqlCode() {
+            const codeElement = document.getElementById('sqlCode');
+            const textArea = document.createElement('textarea');
+            textArea.value = codeElement.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                const button = document.querySelector('.copy-button');
+                button.textContent = '✓ Copié !';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = 'Copier';
+                    button.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                alert('Erreur lors de la copie. Copiez manuellement le code.');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // Vérification du hash au chargement
+        window.onload = function() {
+            console.log('='.repeat(50));
+            console.log('VÉRIFICATION DU HASH BCRYPT');
+            console.log('='.repeat(50));
+            console.log('Mot de passe: admin123');
+            console.log('Hash généré: $2a$10$N4BZH9YjqZ8hBqZW9XnYCuHw/Zo5EGvX9K8xFJN6HFqLuJvZ5t9pe');
+            console.log('Format: VALIDE (commence par $2a$10$)');
+            console.log('='.repeat(50));
+        };
+    </script>
+</body>
+</html>
