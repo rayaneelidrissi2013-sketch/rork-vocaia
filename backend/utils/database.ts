@@ -13,31 +13,40 @@ export const getPool = (): Pool => {
       throw new Error('DATABASE_URL_NOT_CONFIGURED');
     }
 
-    console.log('[DB] Forcing IPv4 for database connections');
+    console.log('[DB] Configuring database connection with IPv4 priority');
     dns.setDefaultResultOrder('ipv4first');
+
+    const poolConfig = {
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+    };
 
     try {
       const url = new URL(databaseUrl);
       
+      console.log('[DB] Creating pool with parsed URL');
+      console.log('[DB] Host:', url.hostname);
+      console.log('[DB] Port:', url.port || '5432');
+      console.log('[DB] Database:', url.pathname.slice(1));
+      console.log('[DB] SSL enabled:', poolConfig.ssl ? 'yes' : 'no');
+      
       pool = new Pool({
         host: url.hostname,
         port: parseInt(url.port) || 5432,
-        database: url.pathname.slice(1),
+        database: url.pathname.slice(1).split('?')[0],
         user: url.username,
         password: url.password,
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-        max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000,
+        ...poolConfig,
       });
-    } catch {
+    } catch (error) {
       console.error('[DB] Error parsing DATABASE_URL, falling back to connectionString');
+      console.error('[DB] Parse error:', error);
+      
       pool = new Pool({
         connectionString: databaseUrl,
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-        max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000,
+        ...poolConfig,
       });
     }
 
