@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Correction Hash Admin - bcryptjs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .step {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .step-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+        
+        .copy-btn.copied {
+            background: #48bb78;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+        
+        .alert.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        
+        .alert.info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+        
+        .alert-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .credentials {
+            background: #e7f3ff;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .credentials h3 {
+            color: #2196F3;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .cred-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #bbdefb;
+        }
+        
+        .cred-row:last-child {
+            border-bottom: none;
+        }
+        
+        .cred-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .cred-value {
+            font-family: monospace;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            color: #2196F3;
+            font-weight: 600;
+        }
+        
+        .hash-info {
+            background: #f0f4ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .hash-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .hash-value {
+            font-family: monospace;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            word-break: break-all;
+            font-size: 13px;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Correction Hash Administrateur</h1>
+            <p>Configuration finale du compte admin avec bcryptjs</p>
+        </div>
+        
+        <div class="content">
+            <div class="alert info">
+                <span class="alert-icon">ℹ️</span>
+                <div class="alert-content">
+                    <strong>Problème identifié :</strong><br>
+                    Le hash dans la base de données n'est pas compatible avec bcryptjs utilisé par votre application.
+                    Cette page va générer le bon hash bcryptjs pour le mot de passe "admin123".
+                </div>
+            </div>
+
+            <div class="credentials">
+                <h3>📋 Identifiants Admin</h3>
+                <div class="cred-row">
+                    <span class="cred-label">Email :</span>
+                    <span class="cred-value">tawfikelidrissi@gmail.com</span>
+                </div>
+                <div class="cred-row">
+                    <span class="cred-label">Mot de passe :</span>
+                    <span class="cred-value">admin123</span>
+                </div>
+            </div>
+
+            <div class="hash-info">
+                <h3>🔑 Hash bcryptjs généré (10 rounds)</h3>
+                <div class="hash-value" id="hashValue">Génération du hash...</div>
+            </div>
+
+            <div class="section">
+                <h2>📝 Instructions</h2>
+                
+                <div class="step">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Ouvrir Supabase SQL Editor</div>
+                    </div>
+                    <p>Allez sur votre projet Supabase → SQL Editor</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Copier et exécuter le code SQL</div>
+                    </div>
+                    <p>Copiez le code SQL ci-dessous et exécutez-le dans le SQL Editor :</p>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copySQL()">Copier</button>
+                        <pre id="sqlCode">-- Génération du hash en cours...</pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Vérifier la mise à jour</div>
+                    </div>
+                    <p>Le code SQL affichera "Mot de passe mis à jour avec succès !" si tout s'est bien passé.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-header">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Redémarrer Railway (facultatif)</div>
+                    </div>
+                    <p>Si le problème persiste, faites un restart de votre application sur Railway.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-header">
+                        <div class="step-number">5</div>
+                        <div class="step-title">Se connecter</div>
+                    </div>
+                    <p>Connectez-vous avec les identifiants ci-dessus.</p>
+                </div>
+            </div>
+
+            <div class="alert success">
+                <span class="alert-icon">✅</span>
+                <div class="alert-content">
+                    <strong>Pourquoi ça va fonctionner ?</strong><br>
+                    Cette fois, nous utilisons <strong>bcryptjs</strong> (même bibliothèque que votre code backend) pour générer le hash directement dans le navigateur. Le hash sera 100% compatible.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🔐 Génération sécurisée du hash avec bcryptjs • Compatible avec votre backend</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+    <script>
+        const email = 'tawfikelidrissi@gmail.com';
+        const password = 'admin123';
+        let generatedHash = '';
+
+        // Générer le hash avec bcryptjs
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('Génération du hash bcryptjs...');
+                
+                // Générer le hash avec 10 rounds (comme dans votre backend)
+                generatedHash = await dcodeIO.bcrypt.hash(password, 10);
+                
+                console.log('Hash généré:', generatedHash);
+                
+                // Afficher le hash
+                document.getElementById('hashValue').textContent = generatedHash;
+                
+                // Générer le code SQL
+                const sqlCode = `-- ======================================
+-- CORRECTION HASH ADMIN AVEC BCRYPTJS
+-- ======================================
+-- Email: ${email}
+-- Mot de passe: ${password}
+-- Hash généré avec bcryptjs (10 rounds)
+-- ======================================
+
+-- Mise à jour du mot de passe admin
+UPDATE users 
+SET 
+    password_hash = '${generatedHash}',
+    role = 'admin',
+    updated_at = NOW()
+WHERE email = '${email}';
+
+-- Vérification
+SELECT 
+    CASE 
+        WHEN COUNT(*) > 0 THEN '✅ Mot de passe mis à jour avec succès !'
+        ELSE '❌ Erreur: Utilisateur non trouvé'
+    END as status,
+    email,
+    name,
+    role,
+    LEFT(password_hash, 30) || '...' as password_hash_preview,
+    updated_at
+FROM users 
+WHERE email = '${email}';
+
+-- Si le compte n'existe pas, le créer
+INSERT INTO users (
+    email, 
+    password_hash, 
+    name, 
+    phone_number, 
+    role, 
+    language,
+    timezone,
+    registration_date,
+    created_at,
+    updated_at
+)
+VALUES (
+    '${email}',
+    '${generatedHash}',
+    'Administrateur',
+    '+212600000000',
+    'admin',
+    'fr',
+    'Europe/Paris',
+    NOW(),
+    NOW(),
+    NOW()
+)
+ON CONFLICT (email) DO UPDATE
+SET 
+    password_hash = EXCLUDED.password_hash,
+    role = EXCLUDED.role,
+    updated_at = NOW();`;
+
+                document.getElementById('sqlCode').textContent = sqlCode;
+                
+            } catch (error) {
+                console.error('Erreur lors de la génération du hash:', error);
+                document.getElementById('hashValue').textContent = 'Erreur lors de la génération du hash';
+                document.getElementById('sqlCode').textContent = 'Erreur: ' + error.message;
+            }
+        });
+
+        function copySQL() {
+            const sqlCode = document.getElementById('sqlCode').textContent;
+            navigator.clipboard.writeText(sqlCode).then(() => {
+                const btn = event.target;
+                btn.textContent = '✅ Copié !';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copier';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                alert('Erreur lors de la copie: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
