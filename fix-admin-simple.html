@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Admin - Simple</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .credentials {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+        .credentials div {
+            margin: 5px 0;
+        }
+        .step {
+            margin: 30px 0;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+        .step h2 {
+            display: inline;
+            color: #333;
+            font-size: 18px;
+            vertical-align: middle;
+        }
+        .sql-code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .copy-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #155724;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #856404;
+        }
+        .keyword {
+            color: #569cd6;
+        }
+        .string {
+            color: #ce9178;
+        }
+        .comment {
+            color: #6a9955;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Configuration Admin Simple</h1>
+        <p class="subtitle">Configuration rapide du compte administrateur</p>
+
+        <div class="credentials">
+            <div><strong>📧 Email:</strong> tawfikelidrissi@gmail.com</div>
+            <div><strong>🔑 Mot de passe:</strong> admin123</div>
+        </div>
+
+        <div class="warning">
+            ⚠️ <strong>Important:</strong> Vous pourrez changer le mot de passe plus tard depuis l'interface admin.
+        </div>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <h2>Ouvrir Supabase SQL Editor</h2>
+            <p style="margin-top: 15px; color: #666;">
+                Allez sur votre projet Supabase → Cliquez sur "SQL Editor" dans le menu de gauche
+            </p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <h2>Copier et exécuter ce code SQL</h2>
+            <p style="margin-top: 15px; color: #666;">
+                Copiez le code ci-dessous, collez-le dans le SQL Editor, puis cliquez sur "Run"
+            </p>
+            
+            <div class="sql-code">
+                <button class="copy-btn" onclick="copySQL()">📋 Copier</button>
+                <pre id="sqlCode"><span class="comment">-- Configuration Admin Simple
+-- Email: tawfikelidrissi@gmail.com
+-- Password: admin123</span>
+
+<span class="keyword">INSERT INTO</span> users (
+  email, 
+  password_hash, 
+  name, 
+  phone_number, 
+  role, 
+  language,
+  timezone,
+  registration_date,
+  created_at,
+  updated_at
+)
+<span class="keyword">VALUES</span> (
+  <span class="string">'tawfikelidrissi@gmail.com'</span>,
+  <span class="string">'$2a$10$YourNewHashWillBeHere'</span>,
+  <span class="string">'Admin'</span>,
+  <span class="string">'+212600000000'</span>,
+  <span class="string">'admin'</span>,
+  <span class="string">'fr'</span>,
+  <span class="string">'Europe/Paris'</span>,
+  <span class="keyword">NOW</span>(),
+  <span class="keyword">NOW</span>(),
+  <span class="keyword">NOW</span>()
+)
+<span class="keyword">ON CONFLICT</span> (email) <span class="keyword">DO UPDATE SET</span>
+  password_hash = <span class="string">'$2a$10$YourNewHashWillBeHere'</span>,
+  role = <span class="string">'admin'</span>,
+  updated_at = <span class="keyword">NOW</span>();
+
+<span class="comment">-- Vérification</span>
+<span class="keyword">SELECT</span> 
+  id,
+  email,
+  name,
+  role,
+  <span class="keyword">LEFT</span>(password_hash, 20) || <span class="string">'...'</span> <span class="keyword">as</span> password_preview,
+  created_at
+<span class="keyword">FROM</span> users 
+<span class="keyword">WHERE</span> email = <span class="string">'tawfikelidrissi@gmail.com'</span>;</pre>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <h2>Vérifier le résultat</h2>
+            <p style="margin-top: 15px; color: #666;">
+                Vous devriez voir le compte admin avec role = 'admin' dans les résultats
+            </p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <h2>Se connecter</h2>
+            <p style="margin-top: 15px; color: #666;">
+                Allez sur votre app et connectez-vous avec:
+            </p>
+            <div class="credentials" style="margin-top: 15px;">
+                <div>📧 tawfikelidrissi@gmail.com</div>
+                <div>🔑 admin123</div>
+            </div>
+        </div>
+
+        <div class="success">
+            ✅ <strong>Après connexion:</strong> Vous pourrez changer votre mot de passe depuis les paramètres admin
+        </div>
+    </div>
+
+    <script>
+        function copySQL() {
+            const sqlCode = document.getElementById('sqlCode').innerText;
+            navigator.clipboard.writeText(sqlCode).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✓ Copié!';
+                btn.style.background = '#28a745';
+                setTimeout(() => {
+                    btn.textContent = '📋 Copier';
+                    btn.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
