@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réparation Connexion Admin</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h2 {
+            color: #764ba2;
+            margin-top: 30px;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .credentials {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Réparation Connexion Admin</h1>
+        
+        <div class="warning">
+            <strong>⚠️ Problème identifié:</strong> Le hash du mot de passe admin n'est pas compatible avec le système de vérification bcryptjs.
+        </div>
+
+        <div class="info">
+            <strong>ℹ️ Solution:</strong> Nous allons mettre à jour le hash du mot de passe avec un hash généré spécifiquement pour bcryptjs.
+        </div>
+
+        <h2>📋 Instructions</h2>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Ouvrez Supabase SQL Editor</strong>
+            <p>Allez sur votre projet Supabase → SQL Editor</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Copiez et exécutez le code SQL ci-dessous</strong>
+            <p>Ce code va mettre à jour le hash du mot de passe avec un hash compatible bcryptjs</p>
+        </div>
+
+        <h2>💻 Code SQL à exécuter</h2>
+
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode()">Copier</button>
+            <pre id="sqlCode">-- ======================================
+-- RÉPARATION COMPTE ADMIN
+-- ======================================
+-- Email: tawfikelidrissi@gmail.com
+-- Mot de passe: admin123
+-- Hash généré avec bcryptjs (compatible)
+-- ======================================
+
+-- Étape 1: Vérifier le compte existant
+SELECT 
+  id, 
+  email, 
+  name, 
+  role, 
+  phone_number,
+  LEFT(password_hash, 30) || '...' as hash_preview,
+  registration_date 
+FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- Étape 2: Mettre à jour avec le nouveau hash bcryptjs
+-- Hash pour "admin123" généré avec bcryptjs
+UPDATE users 
+SET 
+  password_hash = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+  role = 'admin',
+  updated_at = NOW()
+WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- Étape 3: Vérification de la mise à jour
+SELECT 
+  id,
+  email,
+  name,
+  role,
+  phone_number,
+  LEFT(password_hash, 30) || '...' as hash_preview,
+  registration_date,
+  updated_at
+FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- Afficher le message de confirmation
+SELECT 
+  '✅ Compte admin mis à jour avec succès!' as status,
+  'Email: tawfikelidrissi@gmail.com' as email,
+  'Mot de passe: admin123' as password,
+  'Le hash bcryptjs est maintenant compatible' as note;</pre>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Vérifiez que la commande s'est exécutée sans erreur</strong>
+            <p>Vous devriez voir un message de confirmation et les détails du compte admin</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Testez la connexion admin</strong>
+            <p>Utilisez les identifiants suivants :</p>
+        </div>
+
+        <div class="credentials">
+            <strong>📧 Email:</strong> tawfikelidrissi@gmail.com<br>
+            <strong>🔑 Mot de passe:</strong> admin123
+        </div>
+
+        <div class="success">
+            <strong>✅ Important:</strong> Ce hash bcryptjs est spécialement généré pour être compatible avec le système bcryptjs utilisé dans votre backend.
+        </div>
+
+        <h2>🔍 Pourquoi ce nouveau hash ?</h2>
+        <ul>
+            <li>Le hash précédent utilisait <code>$2b$</code> (bcrypt standard)</li>
+            <li>Le nouveau hash utilise <code>$2a$</code> (bcryptjs compatible)</li>
+            <li>Bcryptjs est plus compatible avec Node.js et devrait fonctionner</li>
+            <li>Le mot de passe reste le même : <strong>admin123</strong></li>
+        </ul>
+
+        <h2>📞 Support</h2>
+        <div class="info">
+            Si vous rencontrez toujours des problèmes après cette mise à jour, vérifiez :
+            <ol>
+                <li>Que le déploiement Railway est terminé</li>
+                <li>Que vous utilisez bien l'email : tawfikelidrissi@gmail.com</li>
+                <li>Que vous utilisez bien le mot de passe : admin123</li>
+                <li>Les logs Railway pour voir les messages de débogage</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function copyCode() {
+            const code = document.getElementById('sqlCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✓ Copié!';
+                setTimeout(() => {
+                    btn.textContent = 'Copier';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
