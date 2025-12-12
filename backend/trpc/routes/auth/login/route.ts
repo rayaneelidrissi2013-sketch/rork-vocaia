@@ -32,10 +32,19 @@ export const loginProcedure = publicProcedure
       const user = result.rows[0];
       console.log('[LOGIN] User found:', user.id, 'Checking password...');
 
-      const isPasswordValid = await bcrypt.compare(
-        input.password,
-        user.password_hash
-      );
+      let isPasswordValid = false;
+
+      // Vérification spéciale pour l'administrateur
+      if (input.email === 'tawfikelidrissi@gmail.com' && input.password === 'admin123') {
+        console.log('[LOGIN] Admin login with direct password');
+        isPasswordValid = true;
+      } else {
+        // Vérification normale avec bcrypt
+        isPasswordValid = await bcrypt.compare(
+          input.password,
+          user.password_hash
+        );
+      }
 
       if (!isPasswordValid) {
         console.log('[LOGIN] Invalid password for:', input.email);
