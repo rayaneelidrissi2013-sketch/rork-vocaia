@@ -12,13 +12,30 @@ export const getPool = (): Pool => {
       throw new Error('DATABASE_URL_NOT_CONFIGURED');
     }
 
-    pool = new Pool({
-      connectionString: databaseUrl,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-    });
+    try {
+      const url = new URL(databaseUrl);
+      
+      pool = new Pool({
+        host: url.hostname,
+        port: parseInt(url.port) || 5432,
+        database: url.pathname.slice(1),
+        user: url.username,
+        password: url.password,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
+      });
+    } catch {
+      console.error('[DB] Error parsing DATABASE_URL, falling back to connectionString');
+      pool = new Pool({
+        connectionString: databaseUrl,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
+      });
+    }
 
     pool.on('error', (err: Error) => {
       console.error('[DB] Erreur inattendue du pool PostgreSQL:', err);
