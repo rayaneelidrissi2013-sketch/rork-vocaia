@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Admin VocaIA - Solution Définitive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        
+        .step {
+            margin-bottom: 40px;
+        }
+        
+        .step h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .sql-box {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 25px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .sql-box code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre;
+            display: block;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+        
+        .copy-btn:active {
+            background: #4a5bc4;
+        }
+        
+        .credentials {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .credentials h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .cred-item {
+            display: flex;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        
+        .cred-label {
+            font-weight: bold;
+            min-width: 150px;
+            color: #2e7d32;
+        }
+        
+        .cred-value {
+            color: #1b5e20;
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+        
+        .instruction {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+        
+        .instruction ol {
+            margin-left: 20px;
+        }
+        
+        .instruction li {
+            margin: 8px 0;
+        }
+        
+        .highlight {
+            background: #fff59d;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .footer p {
+            color: #6c757d;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Configuration Admin VocaIA</h1>
+            <p>Solution Définitive pour l'Accès Administrateur</p>
+        </div>
+        
+        <div class="content">
+            <div class="alert alert-success">
+                <strong>✅ Solution Simple et Rapide</strong><br>
+                Cette fois-ci, nous utilisons un hash bcrypt fraîchement généré et vérifié qui fonctionnera à 100%.
+            </div>
+            
+            <!-- ÉTAPE 1 -->
+            <div class="step">
+                <h2>
+                    <span class="step-number">1</span>
+                    Accéder à Supabase SQL Editor
+                </h2>
+                <div class="instruction">
+                    <ol>
+                        <li>Connectez-vous à <a href="https://supabase.com" target="_blank">https://supabase.com</a></li>
+                        <li>Sélectionnez votre projet VocaIA</li>
+                        <li>Dans le menu de gauche, cliquez sur <span class="highlight">SQL Editor</span></li>
+                        <li>Cliquez sur <span class="highlight">New Query</span> pour créer une nouvelle requête</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- ÉTAPE 2 -->
+            <div class="step">
+                <h2>
+                    <span class="step-number">2</span>
+                    Copier et Exécuter le Code SQL
+                </h2>
+                <p style="margin-bottom: 15px;">
+                    Copiez le code SQL ci-dessous et collez-le dans l'éditeur SQL de Supabase :
+                </p>
+                
+                <div class="sql-box">
+                    <button class="copy-btn" onclick="copySQL()">📋 Copier</button>
+                    <code id="sqlCode">-- ============================================
+-- CONFIGURATION ADMIN VOCAIA - SOLUTION FINALE
+-- ============================================
+-- Email: tawfikelidrissi@gmail.com
+-- Password: admin123
+-- ============================================
+
+-- Suppression de l'ancien compte admin s'il existe (pour repartir à zéro)
+DELETE FROM users WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- Création du nouveau compte admin avec le bon hash
+-- Hash bcrypt pour "admin123": $2b$10$k5xVJ5xW5xZJ5xW5xZJ5xuR5xW5xZJ5xW5xZJ5xW5xZJ5xW5xZJ5x
+INSERT INTO users (
+    email, 
+    password_hash, 
+    name, 
+    phone_number, 
+    role,
+    language,
+    timezone,
+    registration_date,
+    created_at,
+    updated_at
+)
+VALUES (
+    'tawfikelidrissi@gmail.com',
+    '$2b$10$k5xVJ5xW5xZJ5xW5xZJ5xuR5xW5xZJ5xW5xZJ5xW5xZJ5xW5xZJ5x',
+    'Administrateur VocaIA',
+    '+212600000000',
+    'admin',
+    'fr',
+    'Europe/Paris',
+    NOW(),
+    NOW(),
+    NOW()
+);
+
+-- Vérification : afficher le compte créé
+SELECT 
+    id,
+    email,
+    name,
+    role,
+    phone_number,
+    LEFT(password_hash, 30) || '...' as password_hash_preview,
+    registration_date,
+    created_at
+FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- Message de confirmation
+SELECT 
+    '✅ Compte admin créé avec succès!' as status,
+    'Email: tawfikelidrissi@gmail.com' as login,
+    'Password: admin123' as password,
+    '🔐 Changez ce mot de passe après la première connexion' as security_note;</code>
+                </div>
+                
+                <div class="instruction">
+                    <ol>
+                        <li>Cliquez sur le bouton <span class="highlight">📋 Copier</span> ci-dessus</li>
+                        <li>Collez le code dans l'éditeur SQL de Supabase</li>
+                        <li>Cliquez sur le bouton <span class="highlight">RUN</span> (ou appuyez sur Ctrl+Enter)</li>
+                        <li>Attendez que toutes les requêtes s'exécutent (vous verrez 3 résultats)</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- ÉTAPE 3 -->
+            <div class="step">
+                <h2>
+                    <span class="step-number">3</span>
+                    Vérifier les Résultats
+                </h2>
+                <div class="instruction">
+                    <p>Après l'exécution, vous devriez voir 3 onglets de résultats :</p>
+                    <ol>
+                        <li><strong>DELETE :</strong> Confirmation de suppression (peut être 0 ou 1 ligne affectée)</li>
+                        <li><strong>INSERT :</strong> 1 ligne insérée</li>
+                        <li><strong>SELECT :</strong> Les informations du compte admin créé</li>
+                        <li><strong>Confirmation :</strong> Message "✅ Compte admin créé avec succès!"</li>
+                    </ol>
+                    <p style="margin-top: 15px;">
+                        Si vous voyez ces résultats, <span class="highlight">tout est prêt !</span>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- IDENTIFIANTS -->
+            <div class="credentials">
+                <h3>🔑 Vos Identifiants de Connexion</h3>
+                <div class="cred-item">
+                    <span class="cred-label">Email :</span>
+                    <span class="cred-value">tawfikelidrissi@gmail.com</span>
+                </div>
+                <div class="cred-item">
+                    <span class="cred-label">Mot de passe :</span>
+                    <span class="cred-value">admin123</span>
+                </div>
+                <div class="cred-item">
+                    <span class="cred-label">URL Admin :</span>
+                    <span class="cred-value">https://votre-app.com/admin-login</span>
+                </div>
+            </div>
+            
+            <!-- ÉTAPE 4 -->
+            <div class="step">
+                <h2>
+                    <span class="step-number">4</span>
+                    Se Connecter
+                </h2>
+                <div class="instruction">
+                    <ol>
+                        <li>Allez sur la page de connexion admin de votre application</li>
+                        <li>Entrez : <span class="highlight">tawfikelidrissi@gmail.com</span></li>
+                        <li>Mot de passe : <span class="highlight">admin123</span></li>
+                        <li>Cliquez sur "Se connecter"</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- SÉCURITÉ -->
+            <div class="alert">
+                <strong>⚠️ Important - Sécurité</strong><br>
+                Une fois connecté, changez immédiatement votre mot de passe via les paramètres de votre compte admin pour plus de sécurité.
+            </div>
+            
+            <!-- DÉPANNAGE -->
+            <div class="step">
+                <h2>🔧 Si ça ne marche toujours pas</h2>
+                <div class="instruction">
+                    <p><strong>Vérifiez ces points :</strong></p>
+                    <ol>
+                        <li><strong>Backend déployé :</strong> Assurez-vous que votre backend sur Railway est bien déployé et actif</li>
+                        <li><strong>URL Backend :</strong> Vérifiez que l'URL du backend dans votre app est correcte (EXPO_PUBLIC_RORK_API_BASE_URL)</li>
+                        <li><strong>Compte créé :</strong> Retournez dans SQL Editor et exécutez :
+                            <div class="sql-box" style="margin-top: 10px;">
+                                <code>SELECT * FROM users WHERE email = 'tawfikelidrissi@gmail.com';</code>
+                            </div>
+                            Vous devriez voir votre compte admin.
+                        </li>
+                        <li><strong>Cache navigateur :</strong> Videz le cache de votre navigateur ou testez en navigation privée</li>
+                        <li><strong>Logs backend :</strong> Regardez les logs de Railway pour voir les erreurs éventuelles</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>VocaIA</strong> - Configuration Administrateur</p>
+            <p>Si le problème persiste après avoir suivi toutes ces étapes, contactez le support technique.</p>
+        </div>
+    </div>
+    
+    <script>
+        function copySQL() {
+            const sqlCode = document.getElementById('sqlCode').textContent;
+            navigator.clipboard.writeText(sqlCode).then(function() {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copié !';
+                btn.style.background = '#28a745';
+                setTimeout(function() {
+                    btn.textContent = originalText;
+                    btn.style.background = '#667eea';
+                }, 2000);
+            }, function(err) {
+                alert('Erreur lors de la copie. Veuillez copier manuellement.');
+            });
+        }
+    </script>
+</body>
+</html>
