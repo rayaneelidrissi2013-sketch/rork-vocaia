@@ -1,5 +1,8 @@
 import { publicProcedure } from '@/backend/trpc/create-context';
 import { z } from 'zod';
+import { getPool } from '@/backend/utils/database';
+import bcrypt from 'bcryptjs';
+import { TRPCError } from '@trpc/server';
 
 export const loginProcedure = publicProcedure
   .input(
@@ -11,37 +14,60 @@ export const loginProcedure = publicProcedure
   .mutation(async ({ input }) => {
     console.log('[LOGIN] Attempt for email:', input.email);
 
-    if (input.email === 'demo@vocaia.com' && input.password === 'demo123') {
+    try {
+      const pool = getPool();
+      const result = await pool.query(
+        'SELECT * FROM users WHERE email = $1',
+        [input.email]
+      );
+
+      if (result.rows.length === 0) {
+        console.log('[LOGIN] User not found:', input.email);
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Email ou mot de passe incorrect',
+        });
+      }
+
+      const user = result.rows[0];
+      console.log('[LOGIN] User found:', user.id, 'Checking password...');
+
+      const isPasswordValid = await bcrypt.compare(
+        input.password,
+        user.password_hash
+      );
+
+      if (!isPasswordValid) {
+        console.log('[LOGIN] Invalid password for:', input.email);
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Email ou mot de passe incorrect',
+        });
+      }
+
+      console.log('[LOGIN] Login successful for:', input.email);
+
       return {
         success: true,
         user: {
-          id: 'demo-user-id',
-          email: 'demo@vocaia.com',
-          name: 'Utilisateur Démo',
-          phoneNumber: '+33612345678',
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          phoneNumber: user.phone_number,
           language: 'fr',
           timezone: 'Europe/Paris',
-          role: 'user',
-          createdAt: new Date().toISOString(),
+          role: user.email === 'tawfikelidrissi@gmail.com' ? 'admin' : 'user',
+          createdAt: user.created_at,
         },
       };
+    } catch (error) {
+      console.error('[LOGIN] Error:', error);
+      if (error instanceof TRPCError) {
+        throw error;
+      }
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Erreur lors de la connexion',
+      });
     }
-
-    if (input.email === 'admin@vocaia.com' && input.password === 'admin123') {
-      return {
-        success: true,
-        user: {
-          id: 'admin-user-id',
-          email: 'admin@vocaia.com',
-          name: 'Administrateur',
-          phoneNumber: '+33612345678',
-          language: 'fr',
-          timezone: 'Europe/Paris',
-          role: 'admin',
-          createdAt: new Date().toISOString(),
-        },
-      };
-    }
-
-    throw new Error('Email ou mot de passe incorrect');
   });
