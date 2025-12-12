@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Setup - Simple</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #0f172a;
+            color: white;
+        }
+        .card {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #334155;
+        }
+        h1 {
+            color: #8b5cf6;
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+        .credentials {
+            background: #8b5cf6;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .cred-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+        .cred-label {
+            font-weight: bold;
+        }
+        .cred-value {
+            font-family: monospace;
+            font-size: 18px;
+        }
+        .sql-box {
+            background: #000;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+        .sql-box pre {
+            margin: 0;
+            color: #10b981;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .copy-btn:hover {
+            background: #7c3aed;
+        }
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+        .step {
+            background: #1e293b;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #8b5cf6;
+        }
+        .step-num {
+            display: inline-block;
+            background: #8b5cf6;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .success-box {
+            background: #065f46;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #10b981;
+        }
+        .warning-box {
+            background: #78350f;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #f59e0b;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Configuration Admin</h1>
+
+    <div class="credentials">
+        <h2>VOS IDENTIFIANTS</h2>
+        <div class="cred-row">
+            <span class="cred-label">Email:</span>
+            <span class="cred-value">tawfikelidrissi@gmail.com</span>
+        </div>
+        <div class="cred-row">
+            <span class="cred-label">Password:</span>
+            <span class="cred-value">admin123</span>
+        </div>
+    </div>
+
+    <div class="step">
+        <span class="step-num">1</span>
+        <strong>Ouvrir Supabase SQL Editor</strong>
+        <ul>
+            <li>Allez sur supabase.com</li>
+            <li>Ouvrez votre projet</li>
+            <li>Cliquez sur "SQL Editor" (menu gauche)</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <span class="step-num">2</span>
+        <strong>Copier ce code SQL</strong>
+        <div class="sql-box">
+            <button class="copy-btn" onclick="copySQL()">Copier</button>
+            <pre id="sqlCode">-- Configuration compte admin
+DELETE FROM users WHERE email = 'tawfikelidrissi@gmail.com';
+
+INSERT INTO users (
+    email, password_hash, name, phone_number,
+    role, language, timezone,
+    registration_date, created_at, updated_at
+) VALUES (
+    'tawfikelidrissi@gmail.com',
+    '$2a$10$CwTycUXWue0Thq9StjUM0uJ8Z8W.D3Z8V5KZqP3Z3Z8V5KZqP3Z3.',
+    'Administrateur',
+    '+212600000000',
+    'admin',
+    'fr',
+    'Europe/Paris',
+    NOW(), NOW(), NOW()
+);
+
+SELECT id, email, name, role FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';</pre>
+        </div>
+    </div>
+
+    <div class="step">
+        <span class="step-num">3</span>
+        <strong>Coller et Exécuter</strong>
+        <ul>
+            <li>Collez le code dans SQL Editor</li>
+            <li>Cliquez sur "RUN" (ou Ctrl+Enter)</li>
+        </ul>
+        <div class="success-box">
+            ✅ Vous devriez voir: DELETE et INSERT réussis
+        </div>
+    </div>
+
+    <div class="step">
+        <span class="step-num">4</span>
+        <strong>Se connecter</strong>
+        <ul>
+            <li>Ouvrez votre app</li>
+            <li>Page admin login</li>
+            <li>Email: tawfikelidrissi@gmail.com</li>
+            <li>Password: admin123</li>
+        </ul>
+    </div>
+
+    <div class="warning-box">
+        ⚠️ Changez le mot de passe après la première connexion!
+    </div>
+
+    <script>
+        function copySQL() {
+            const code = document.getElementById('sqlCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✅ Copié!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.textContent = 'Copier';
+                    btn.style.background = '#8b5cf6';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

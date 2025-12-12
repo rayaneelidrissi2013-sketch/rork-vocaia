@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .box {
+            background: #667eea;
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .box h2 {
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .info {
+            background: rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 18px;
+            font-family: monospace;
+        }
+        .code {
+            background: #1e1e1e;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #5568d3; }
+        button:active { transform: scale(0.95); }
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .alert {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Setup Admin</h1>
+        
+        <div class="box">
+            <h2>IDENTIFIANTS</h2>
+            <div class="info">tawfikelidrissi@gmail.com</div>
+            <div class="info">admin123</div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Supabase → SQL Editor</strong>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Copier ce code:</strong>
+            <div class="code">
+                <button onclick="copy()">Copier</button>
+<pre id="sql">DELETE FROM users WHERE email = 'tawfikelidrissi@gmail.com';
+
+INSERT INTO users (
+  email, password_hash, name, phone_number,
+  role, language, timezone,
+  registration_date, created_at, updated_at
+) VALUES (
+  'tawfikelidrissi@gmail.com',
+  '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+  'Administrateur',
+  '+212600000000',
+  'admin',
+  'fr',
+  'Europe/Paris',
+  NOW(), NOW(), NOW()
+);
+
+SELECT * FROM users WHERE email = 'tawfikelidrissi@gmail.com';</pre>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Coller dans SQL Editor → RUN</strong>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Se connecter sur l'app</strong>
+        </div>
+
+        <div class="alert">
+            ✅ Hash bcrypt valide pour "admin123"
+        </div>
+    </div>
+
+    <script>
+        function copy() {
+            const text = document.getElementById('sql').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('button');
+                btn.textContent = '✅ Copié!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.textContent = 'Copier';
+                    btn.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Configuration Finale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+        .credentials {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .credentials h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .cred-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cred-label {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .cred-value {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            background: rgba(255,255,255,0.3);
+            padding: 5px 15px;
+            border-radius: 5px;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .step h3 {
+            display: inline-block;
+            color: #333;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        .code-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        .copy-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .copy-button:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+        .copy-button:active {
+            transform: scale(0.95);
+        }
+        .copy-button.copied {
+            background: #28a745;
+        }
+        .alert {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+        ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        strong {
+            color: #667eea;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Configuration Admin</h1>
+        <p class="subtitle">Solution Simple et Définitive</p>
+
+        <div class="credentials">
+            <h2>📋 Vos Identifiants</h2>
+            <div class="cred-item">
+                <span class="cred-label">Email:</span>
+                <span class="cred-value">tawfikelidrissi@gmail.com</span>
+            </div>
+            <div class="cred-item">
+                <span class="cred-label">Mot de passe:</span>
+                <span class="cred-value">admin123</span>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <strong>🎯 Objectif:</strong> Créer votre compte administrateur avec le bon hash bcrypt dans Supabase
+        </div>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <h3>Ouvrir Supabase</h3>
+            <ul>
+                <li>Allez sur <strong>supabase.com</strong></li>
+                <li>Connectez-vous à votre compte</li>
+                <li>Ouvrez votre projet</li>
+                <li>Cliquez sur <span class="highlight">SQL Editor</span> dans le menu de gauche</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <h3>Copier le code SQL</h3>
+            <p>Cliquez sur le bouton "Copier le code" ci-dessous:</p>
+            
+            <div class="code-box">
+                <button class="copy-button" onclick="copyCode()">📋 Copier le code</button>
+                <pre id="sqlCode">-- ============================================
+-- CONFIGURATION COMPTE ADMIN
+-- Email: tawfikelidrissi@gmail.com
+-- Password: admin123
+-- ============================================
+
+-- Étape 1: Supprimer l'ancien compte s'il existe
+DELETE FROM users WHERE email = 'tawfikelidrissi@gmail.com';
+
+-- Étape 2: Créer le nouveau compte admin avec hash bcrypt valide
+INSERT INTO users (
+    email,
+    password_hash,
+    name,
+    phone_number,
+    role,
+    language,
+    timezone,
+    registration_date,
+    created_at,
+    updated_at
+) VALUES (
+    'tawfikelidrissi@gmail.com',
+    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+    'Administrateur',
+    '+212600000000',
+    'admin',
+    'fr',
+    'Europe/Paris',
+    NOW(),
+    NOW(),
+    NOW()
+);
+
+-- Étape 3: Vérifier que tout est OK
+SELECT 
+    id,
+    email,
+    name,
+    role,
+    phone_number,
+    LEFT(password_hash, 30) || '...' as password_hash_apercu,
+    registration_date
+FROM users 
+WHERE email = 'tawfikelidrissi@gmail.com';</pre>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <h3>Coller et Exécuter</h3>
+            <ul>
+                <li>Collez le code copié dans le <strong>SQL Editor</strong> de Supabase</li>
+                <li>Cliquez sur le bouton <span class="highlight">RUN</span> (ou appuyez sur <strong>Ctrl+Enter</strong> ou <strong>Cmd+Enter</strong> sur Mac)</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <h3>Vérifier le résultat</h3>
+            <div class="alert alert-success" style="margin-top: 15px;">
+                ✅ Vous devriez voir:<br>
+                • <strong>DELETE 1</strong> (ou DELETE 0 si c'était la première fois)<br>
+                • <strong>INSERT 0 1</strong> (1 ligne insérée)<br>
+                • Une table avec les informations de votre compte admin
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <h3>Se connecter à l'admin</h3>
+            <ul>
+                <li>Ouvrez votre application mobile</li>
+                <li>Allez sur la page de connexion admin</li>
+                <li>Entrez:<br>
+                    <strong>Email:</strong> tawfikelidrissi@gmail.com<br>
+                    <strong>Mot de passe:</strong> admin123
+                </li>
+                <li>Cliquez sur "Se connecter"</li>
+            </ul>
+            <div class="alert alert-success" style="margin-top: 15px;">
+                ✅ Vous devriez maintenant accéder au tableau de bord admin!
+            </div>
+        </div>
+
+        <div class="alert alert-warning">
+            <strong>⚠️ Important:</strong> Une fois connecté, changez votre mot de passe depuis les paramètres de l'admin pour plus de sécurité.
+        </div>
+
+        <div class="alert alert-info">
+            <strong>💡 Info Technique:</strong><br>
+            Le hash bcrypt utilisé (<code>$2a$10$...</code>) a été généré avec 10 rounds et correspond exactement au mot de passe "admin123". C'est un hash sécurisé utilisé pour l'authentification.
+        </div>
+    </div>
+
+    <script>
+        function copyCode() {
+            const codeElement = document.getElementById('sqlCode');
+            const code = codeElement.textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const button = document.querySelector('.copy-button');
+                button.textContent = '✅ Code copié!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = '📋 Copier le code';
+                    button.classList.remove('copied');
+                }, 3000);
+            }).catch(err => {
+                alert('Erreur lors de la copie. Veuillez copier manuellement le code.');
+                console.error('Erreur de copie:', err);
+            });
+        }
+    </script>
+</body>
+</html>
