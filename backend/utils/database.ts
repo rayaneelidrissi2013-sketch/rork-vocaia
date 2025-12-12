@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import type { DBUser, DBCall, DashboardStats, UserDetails, PaymentRecord } from '@/types';
+import dns from 'dns';
 
 let pool: Pool | null = null;
 
@@ -11,6 +12,9 @@ export const getPool = (): Pool => {
       console.warn('[DB] DATABASE_URL non définie - base de données désactivée');
       throw new Error('DATABASE_URL_NOT_CONFIGURED');
     }
+
+    console.log('[DB] Forcing IPv4 for database connections');
+    dns.setDefaultResultOrder('ipv4first');
 
     try {
       const url = new URL(databaseUrl);
