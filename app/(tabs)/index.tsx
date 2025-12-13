@@ -32,7 +32,7 @@ export default function DashboardScreen() {
   const user = authContext?.user || null;
   const calls = callsContext?.calls || [];
   const callsLoading = callsContext?.isLoading || false;
-  const refreshCalls = callsContext?.refreshCalls || (async () => {});
+  const refreshCallsFunc = callsContext?.refreshCalls;
   const settings = settingsContext?.settings || { isEnabled: false, language: 'fr', timezone: 'Europe/Paris' };
   const toggleAIAgent = settingsContext?.toggleAIAgent || (() => {});
   const settingsLoading = settingsContext?.isLoading || false;
@@ -146,11 +146,11 @@ export default function DashboardScreen() {
 
   const onRefresh = useCallback(async () => {
     await Promise.all([
-      refreshCalls(),
+      refreshCallsFunc ? refreshCallsFunc() : Promise.resolve(),
       subscriptionQuery.refetch(),
       callsQuery.refetch(),
     ]);
-  }, [refreshCalls, subscriptionQuery, callsQuery]);
+  }, [refreshCallsFunc, subscriptionQuery, callsQuery]);
 
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -214,6 +214,12 @@ export default function DashboardScreen() {
               <Text style={styles.kpiLabel}>Pack Actif</Text>
             </View>
             <Text style={styles.kpiValue}>{planData?.name || 'Aucun plan'}</Text>
+            <TouchableOpacity
+              style={styles.changePackButton}
+              onPress={() => router.push('/pricing' as any)}
+            >
+              <Text style={styles.changePackButtonText}>Choisir un pack</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.kpiCard}>
@@ -980,6 +986,19 @@ const styles = StyleSheet.create({
   chooseOtherButtonText: {
     fontSize: 18,
     fontWeight: '800' as const,
+    color: '#fff',
+  },
+  changePackButton: {
+    backgroundColor: '#1E3A8A',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  changePackButtonText: {
+    fontSize: 12,
+    fontWeight: '700' as const,
     color: '#fff',
   },
 });

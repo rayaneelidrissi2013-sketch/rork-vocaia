@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS user_subscriptions (
   minutes_remaining INTEGER DEFAULT 0,
   start_date TIMESTAMP DEFAULT NOW(),
   renewal_date TIMESTAMP,
-  status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'expired', 'cancelled', 'suspended')),
+  status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'pending', 'expired', 'cancelled', 'suspended')),
   payment_method VARCHAR(50),
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
