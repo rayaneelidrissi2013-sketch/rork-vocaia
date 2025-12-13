@@ -73,6 +73,12 @@ export default protectedProcedure
         [input.userId, input.planId, id]
       );
 
+      await db.query(
+        `INSERT INTO payments (user_id, amount, type, status, paypal_transaction_id)
+         VALUES ($1, $2, 'subscription', 'pending', $3)`,
+        [input.userId, plan.price, id]
+      );
+
       console.log('[tRPC] PayPal subscription created successfully:', id);
       
       return {

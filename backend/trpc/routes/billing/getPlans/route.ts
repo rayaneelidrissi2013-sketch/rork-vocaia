@@ -38,7 +38,11 @@ export default publicProcedure
           features,
           is_recommended
         FROM subscription_plans
-        ORDER BY price ASC`
+        ORDER BY 
+          CASE 
+            WHEN id = 'entreprise' THEN 999999
+            ELSE price
+          END ASC`
       );
 
       const plans = result.rows.map((row: any) => ({

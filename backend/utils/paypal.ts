@@ -127,27 +127,52 @@ export async function createSubscription(
   returnUrl: string,
   cancelUrl: string
 ): Promise<{ id: string; approvalUrl: string }> {
-  console.log('[PayPal] Creating subscription:', { planId, userId });
+  console.log('[PayPal] Creating order for plan:', { planId, userId });
   
   try {
+    const db = getPool();
+    const planResult = await db.query(
+      'SELECT * FROM subscription_plans WHERE id = $1',
+      [planId]
+    );
+
+    if (planResult.rows.length === 0) {
+      throw new Error('Plan non trouvé');
+    }
+
+    const plan = planResult.rows[0];
+    const amount = parseFloat(plan.price).toFixed(2);
+
     const accessToken = await getAccessToken();
     const settings = await getPayPalSettings();
     const PAYPAL_API_BASE = getPayPalApiBase(settings.mode);
 
     const requestBody = {
-      plan_id: planId,
-      custom_id: userId,
+      intent: 'CAPTURE',
+      purchase_units: [
+        {
+          reference_id: userId,
+          description: `${plan.name} - ${plan.minutes_included} minutes`,
+          custom_id: userId,
+          amount: {
+            currency_code: 'EUR',
+            value: amount,
+          },
+        },
+      ],
       application_context: {
         return_url: returnUrl,
         cancel_url: cancelUrl,
         brand_name: 'VocaIA',
-        user_action: 'SUBSCRIBE_NOW',
+        user_action: 'PAY_NOW',
+        landing_page: 'LOGIN',
+        shipping_preference: 'NO_SHIPPING',
       },
     };
 
     console.log('[PayPal] Request body:', JSON.stringify(requestBody, null, 2));
 
-    const response = await fetch(`${PAYPAL_API_BASE}/v1/billing/subscriptions`, {
+    const response = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -158,13 +183,13 @@ export async function createSubscription(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[PayPal] Subscription creation failed:', {
+      console.error('[PayPal] Order creation failed:', {
         status: response.status,
         statusText: response.statusText,
         error: errorText,
       });
       
-      let errorMessage = 'Impossible de créer l\'abonnement PayPal';
+      let errorMessage = 'Impossible de créer la commande PayPal';
       
       try {
         const errorData = JSON.parse(errorText);
@@ -182,7 +207,7 @@ export async function createSubscription(
     }
 
     const data = await response.json();
-    console.log('[PayPal] Subscription created:', data.id);
+    console.log('[PayPal] Order created:', data.id);
     
     const approvalUrl = data.links.find((link: any) => link.rel === 'approve')?.href || '';
 
