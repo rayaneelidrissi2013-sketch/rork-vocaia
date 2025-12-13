@@ -30,6 +30,11 @@ import { updateAllowedCountriesProcedure } from "./routes/admin/updateAllowedCou
 import { runMigrationProcedure } from "./routes/admin/runMigration/route";
 import { getPayPalSettingsProcedure } from "./routes/admin/getPayPalSettings/route";
 import { updatePayPalSettingsProcedure } from "./routes/admin/updatePayPalSettings/route";
+import { createVirtualNumberProcedure } from "./routes/admin/createVirtualNumber/route";
+import { getVirtualNumbersProcedure } from "./routes/admin/getVirtualNumbers/route";
+import { deleteVirtualNumberProcedure } from "./routes/admin/deleteVirtualNumber/route";
+import { getSMTPSettingsProcedure } from "./routes/admin/getSMTPSettings/route";
+import { updateSMTPSettingsProcedure } from "./routes/admin/updateSMTPSettings/route";
 
 // calls
 import getUserCallsRoute from "./routes/calls/getUserCalls/route";
@@ -86,6 +91,11 @@ export const appRouter = createTRPCRouter({
     runMigration: runMigrationProcedure,
     getPayPalSettings: getPayPalSettingsProcedure,
     updatePayPalSettings: updatePayPalSettingsProcedure,
+    createVirtualNumber: createVirtualNumberProcedure,
+    getVirtualNumbers: getVirtualNumbersProcedure,
+    deleteVirtualNumber: deleteVirtualNumberProcedure,
+    getSMTPSettings: getSMTPSettingsProcedure,
+    updateSMTPSettings: updateSMTPSettingsProcedure,
   }),
 
   calls: createTRPCRouter({

@@ -36,6 +36,9 @@ CREATE TABLE IF NOT EXISTS users (
   bonus_minutes INTEGER DEFAULT 0,
   referral_count INTEGER DEFAULT 0,
   
+  -- Localisation
+  country_code VARCHAR(10),
+  
   -- Métadonnées
   registration_date TIMESTAMP DEFAULT NOW(),
   created_at TIMESTAMP DEFAULT NOW(),

@@ -8,24 +8,43 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAdmin } from '@/contexts/AdminContext';
 import { Phone, Plus, Trash2, X, CheckCircle } from 'lucide-react-native';
-import { VirtualNumber } from '@/types';
+import { trpc } from '@/lib/trpc';
+
+type VirtualNumber = {
+  id: string;
+  phoneNumber: string;
+  country: string;
+  countryCode: string;
+  provider: string;
+  status: string;
+  assignedUserId: string | null;
+  webhookUrl: string;
+  createdAt: string;
+};
 
 export default function VirtualNumbersManagement() {
-  const { virtualNumbers, addVirtualNumber, removeVirtualNumber } = useAdmin();
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
-  const [newNumber, setNewNumber] = useState<Partial<VirtualNumber>>({
+  const [newNumber, setNewNumber] = useState<{
+    phoneNumber: string;
+    country: string;
+    countryCode: string;
+    provider: string;
+    webhookUrl: string;
+  }>({
     phoneNumber: '',
     country: '',
     countryCode: '',
     provider: 'Twilio',
-    status: 'active',
-    assignedUserId: null,
     webhookUrl: '',
   });
+
+  const { data: virtualNumbers, isLoading, refetch } = trpc.admin.getVirtualNumbers.useQuery();
+  const createMutation = trpc.admin.createVirtualNumber.useMutation();
+  const deleteMutation = trpc.admin.deleteVirtualNumber.useMutation();
 
   const handleAddNumber = async () => {
     if (!newNumber.phoneNumber || !newNumber.country || !newNumber.countryCode) {
@@ -34,13 +53,11 @@ export default function VirtualNumbersManagement() {
     }
 
     try {
-      await addVirtualNumber({
-        phoneNumber: newNumber.phoneNumber!,
-        country: newNumber.country!,
-        countryCode: newNumber.countryCode!,
+      await createMutation.mutateAsync({
+        phoneNumber: newNumber.phoneNumber,
+        country: newNumber.country,
+        countryCode: newNumber.countryCode,
         provider: newNumber.provider || 'Twilio',
-        status: newNumber.status || 'active',
-        assignedUserId: newNumber.assignedUserId || null,
         webhookUrl: newNumber.webhookUrl || '',
       });
       setShowAddModal(false);
@@ -49,13 +66,12 @@ export default function VirtualNumbersManagement() {
         country: '',
         countryCode: '',
         provider: 'Twilio',
-        status: 'active',
-        assignedUserId: null,
         webhookUrl: '',
       });
+      refetch();
       Alert.alert('Succès', 'Numéro virtuel ajouté avec succès');
-    } catch {
-      Alert.alert('Erreur', 'Impossible d\'ajouter le numéro virtuel');
+    } catch (error: any) {
+      Alert.alert('Erreur', error.message || 'Impossible d\'ajouter le numéro virtuel');
     }
   };
 
@@ -70,10 +86,11 @@ export default function VirtualNumbersManagement() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await removeVirtualNumber(id);
+              await deleteMutation.mutateAsync({ id });
+              refetch();
               Alert.alert('Succès', 'Numéro supprimé');
-            } catch {
-              Alert.alert('Erreur', 'Impossible de supprimer le numéro');
+            } catch (error: any) {
+              Alert.alert('Erreur', error.message || 'Impossible de supprimer le numéro');
             }
           },
         },
@@ -81,7 +98,7 @@ export default function VirtualNumbersManagement() {
     );
   };
 
-  const numbersByCountry = virtualNumbers.reduce<{ [key: string]: VirtualNumber[] }>((acc, num) => {
+  const numbersByCountry = (virtualNumbers || []).reduce<{ [key: string]: VirtualNumber[] }>((acc, num) => {
     if (!acc[num.country]) {
       acc[num.country] = [];
     }
@@ -104,7 +121,12 @@ export default function VirtualNumbersManagement() {
           </TouchableOpacity>
         </View>
 
-        {Object.keys(numbersByCountry).length === 0 ? (
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#3B82F6" />
+            <Text style={styles.loadingText}>Chargement des numéros...</Text>
+          </View>
+        ) : Object.keys(numbersByCountry).length === 0 ? (
           <View style={styles.emptyState}>
             <Phone size={48} color="#64748B" />
             <Text style={styles.emptyText}>Aucun numéro virtuel configuré</Text>
@@ -419,5 +441,14 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700' as const,
     color: '#fff',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#94A3B8',
+    marginTop: 16,
   },
 });

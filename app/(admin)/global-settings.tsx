@@ -13,8 +13,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAdmin } from '@/contexts/AdminContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import { Bot, Save, LogOut, Globe, X } from 'lucide-react-native';
+import { Bot, Save, LogOut, Globe, X, Mail } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { trpc } from '@/lib/trpc';
 
 export default function GlobalSettings() {
   const { globalSettings, updateGlobalSettings } = useAdmin();
@@ -24,10 +25,38 @@ export default function GlobalSettings() {
   const [allowedCountries, setAllowedCountries] = useState<string[]>(['+1']);
   const [newCountryCode, setNewCountryCode] = useState<string>('');
   const [isLoadingCountries, setIsLoadingCountries] = useState<boolean>(true);
+  const [smtpSettings, setSMTPSettings] = useState<{
+    smtp_host: string;
+    smtp_port: string;
+    smtp_user: string;
+    smtp_password: string;
+    smtp_from_email: string;
+  }>({
+    smtp_host: '',
+    smtp_port: '587',
+    smtp_user: '',
+    smtp_password: '',
+    smtp_from_email: '',
+  });
+
+  const { data: smtpData, refetch: refetchSMTP } = trpc.admin.getSMTPSettings.useQuery();
+  const updateSMTPMutation = trpc.admin.updateSMTPSettings.useMutation();
   
   useEffect(() => {
     loadAllowedCountries();
   }, []);
+
+  useEffect(() => {
+    if (smtpData) {
+      setSMTPSettings({
+        smtp_host: smtpData.smtp_host || '',
+        smtp_port: smtpData.smtp_port || '587',
+        smtp_user: smtpData.smtp_user || '',
+        smtp_password: smtpData.smtp_password || '',
+        smtp_from_email: smtpData.smtp_from_email || '',
+      });
+    }
+  }, [smtpData]);
   
   const loadAllowedCountries = async () => {
     try {
@@ -108,6 +137,16 @@ export default function GlobalSettings() {
     } catch (error) {
       console.error('[GlobalSettings] Error saving allowed countries:', error);
       Alert.alert('Erreur', 'Impossible de sauvegarder la liste des pays');
+    }
+  };
+
+  const handleSaveSMTP = async () => {
+    try {
+      await updateSMTPMutation.mutateAsync(smtpSettings);
+      refetchSMTP();
+      Alert.alert('Succès', 'Les paramètres SMTP ont été mis à jour');
+    } catch (error: any) {
+      Alert.alert('Erreur', error.message || 'Impossible de mettre à jour les paramètres SMTP');
     }
   };
 
@@ -280,9 +319,92 @@ export default function GlobalSettings() {
         </View>
 
         <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Mail size={24} color="#F59E0B" />
+            <Text style={styles.sectionTitle}>Configuration SMTP</Text>
+          </View>
+          <View style={styles.card}>
+            <Text style={styles.helpText}>
+              Configurez les paramètres SMTP pour l&apos;envoi d&apos;e-mails (réinitialisation de mot de passe, etc.).
+            </Text>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Hôte SMTP *</Text>
+              <TextInput
+                style={styles.input}
+                value={smtpSettings.smtp_host}
+                onChangeText={(text) => setSMTPSettings({ ...smtpSettings, smtp_host: text })}
+                placeholder="smtp.gmail.com"
+                placeholderTextColor="#64748B"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Port SMTP *</Text>
+              <TextInput
+                style={styles.input}
+                value={smtpSettings.smtp_port}
+                onChangeText={(text) => setSMTPSettings({ ...smtpSettings, smtp_port: text })}
+                placeholder="587"
+                placeholderTextColor="#64748B"
+                keyboardType="number-pad"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Utilisateur SMTP *</Text>
+              <TextInput
+                style={styles.input}
+                value={smtpSettings.smtp_user}
+                onChangeText={(text) => setSMTPSettings({ ...smtpSettings, smtp_user: text })}
+                placeholder="votre-email@example.com"
+                placeholderTextColor="#64748B"
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Mot de passe SMTP *</Text>
+              <TextInput
+                style={styles.input}
+                value={smtpSettings.smtp_password}
+                onChangeText={(text) => setSMTPSettings({ ...smtpSettings, smtp_password: text })}
+                placeholder="••••••••"
+                placeholderTextColor="#64748B"
+                secureTextEntry
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>E-mail expéditeur *</Text>
+              <TextInput
+                style={styles.input}
+                value={smtpSettings.smtp_from_email}
+                onChangeText={(text) => setSMTPSettings({ ...smtpSettings, smtp_from_email: text })}
+                placeholder="noreply@example.com"
+                placeholderTextColor="#64748B"
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+            </View>
+
+            <TouchableOpacity 
+              style={[styles.saveButton, { marginTop: 16 }]} 
+              onPress={handleSaveSMTP}
+            >
+              <Save size={20} color="#fff" />
+              <Text style={styles.saveButtonText}>Enregistrer SMTP</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.section}>
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
             <Save size={20} color="#fff" />
-            <Text style={styles.saveButtonText}>Enregistrer les clés API</Text>
+            <Text style={styles.saveButtonText}>Enregistrer les Paramètres Agent</Text>
           </TouchableOpacity>
         </View>
 
