@@ -87,7 +87,7 @@ export const registerProcedure = publicProcedure
       const virtualNumberResult = await pool.query(
         `SELECT id, phone_number FROM virtual_numbers 
          WHERE country_code = $1 
-         AND (assigned_user_id IS NULL OR assigned_user_id = '')
+         AND assigned_user_id IS NULL
          LIMIT 1`,
         [countryCode]
       );
@@ -131,11 +131,22 @@ export const registerProcedure = publicProcedure
       };
       console.log('[REGISTER] Step 8: User data prepared:', JSON.stringify(userData, null, 2));
 
-      console.log('[REGISTER] Step 9: Creating user in database...');
+      console.log('[REGISTER] Step 9: Checking if user with this phone already had free plan...');
+      const existingFreeUserResult = await pool.query(
+        `SELECT id FROM users WHERE phone_number = $1`,
+        [input.phoneNumber]
+      );
+      
+      if (existingFreeUserResult.rows.length > 0) {
+        console.log('[REGISTER] User with this phone number already exists, cannot use free plan again');
+        throw new Error('Ce numéro de téléphone a déjà été utilisé. Vous ne pouvez pas bénéficier du plan gratuit plusieurs fois.');
+      }
+      
+      console.log('[REGISTER] Step 10: Creating user in database...');
       const newUser = await db.users.create(userData);
       
       if (virtualNumberId) {
-        console.log('[REGISTER] Step 10: Assigning virtual number to user...');
+        console.log('[REGISTER] Step 11: Assigning virtual number to user...');
         await pool.query(
           `UPDATE virtual_numbers SET assigned_user_id = $1 WHERE id = $2`,
           [newUser.id, virtualNumberId]

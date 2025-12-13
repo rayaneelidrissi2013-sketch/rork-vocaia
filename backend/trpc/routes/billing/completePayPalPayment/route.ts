@@ -146,11 +146,26 @@ export default protectedProcedure
         `UPDATE user_subscriptions 
          SET status = 'active',
              minutes_remaining = $1,
+             minutes_used = 0,
              renewal_date = NOW() + INTERVAL '30 days',
              updated_at = NOW()
          WHERE paypal_subscription_id = $2`,
         [subscription.minutes_included, input.orderId]
       );
+      
+      await db.query(
+        `UPDATE users 
+         SET plan_id = $1,
+             minutes_included = $2,
+             minutes_remaining = $2,
+             minutes_consumed = 0,
+             date_renouvellement = NOW() + INTERVAL '30 days',
+             updated_at = NOW()
+         WHERE id = $3`,
+        [subscription.plan_id, subscription.minutes_included, input.userId]
+      );
+      
+      console.log('[PayPal] User plan updated - old minutes NOT carried over, fresh start with new plan minutes');
 
       await db.query(
         `UPDATE payments 
@@ -161,6 +176,7 @@ export default protectedProcedure
       );
 
       console.log('[tRPC] Subscription activated successfully for user:', input.userId);
+      console.log('[tRPC] Plan upgraded - user now has fresh', subscription.minutes_included, 'minutes (old minutes were NOT carried over)');
 
       return {
         success: true,
@@ -168,6 +184,7 @@ export default protectedProcedure
         subscription: {
           planId: subscription.plan_id,
           minutesIncluded: subscription.minutes_included,
+          minutesRemaining: subscription.minutes_included,
           renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         },
       };

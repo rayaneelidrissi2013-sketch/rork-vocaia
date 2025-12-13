@@ -89,10 +89,20 @@ export default function AdminSettings() {
 
   const allowedCountriesQuery = trpc.admin.getAllowedCountries.useQuery();
   const paypalSettingsQuery = trpc.admin.getPayPalSettings.useQuery();
+  const smtpSettingsQuery = trpc.admin.getSMTPSettings.useQuery();
   const updatePayPalSettingsMutation = trpc.admin.updatePayPalSettings.useMutation({
     onSuccess: () => {
       paypalSettingsQuery.refetch();
       Alert.alert('Succès', 'Les paramètres PayPal ont été mis à jour');
+    },
+    onError: (error) => {
+      Alert.alert('Erreur', error.message);
+    },
+  });
+  const updateSMTPSettingsMutation = trpc.admin.updateSMTPSettings.useMutation({
+    onSuccess: () => {
+      smtpSettingsQuery.refetch();
+      Alert.alert('Succès', 'Les paramètres SMTP ont été mis à jour');
     },
     onError: (error) => {
       Alert.alert('Erreur', error.message);
@@ -117,6 +127,14 @@ export default function AdminSettings() {
     clientSecret: string;
     mode: 'sandbox' | 'live';
   }>({ clientId: '', clientSecret: '', mode: 'sandbox' });
+  const [localSMTPSettings, setLocalSMTPSettings] = useState<{
+    smtp_host: string;
+    smtp_port: string;
+    smtp_user: string;
+    smtp_password: string;
+    smtp_from_email: string;
+    smtp_from_name: string;
+  }>({ smtp_host: '', smtp_port: '587', smtp_user: '', smtp_password: '', smtp_from_email: '', smtp_from_name: '' });
   
   React.useEffect(() => {
     if (cguQuery.data?.cgu) {
@@ -139,6 +157,19 @@ export default function AdminSettings() {
       });
     }
   }, [paypalSettingsQuery.data]);
+
+  React.useEffect(() => {
+    if (smtpSettingsQuery.data) {
+      setLocalSMTPSettings({
+        smtp_host: smtpSettingsQuery.data.smtp_host || '',
+        smtp_port: smtpSettingsQuery.data.smtp_port || '587',
+        smtp_user: smtpSettingsQuery.data.smtp_user || '',
+        smtp_password: smtpSettingsQuery.data.smtp_password || '',
+        smtp_from_email: smtpSettingsQuery.data.smtp_from_email || '',
+        smtp_from_name: smtpSettingsQuery.data.smtp_from_name || '',
+      });
+    }
+  }, [smtpSettingsQuery.data]);
   const updatePlanMutation = trpc.admin.updatePricingPlan.useMutation({
     onSuccess: () => {
       pricingPlansQuery.refetch();
@@ -1142,6 +1173,8 @@ export default function AdminSettings() {
                   <Text style={styles.inputLabel}>Hôte SMTP</Text>
                   <TextInput
                     style={styles.input}
+                    value={localSMTPSettings.smtp_host}
+                    onChangeText={(text) => setLocalSMTPSettings({ ...localSMTPSettings, smtp_host: text })}
                     placeholder="smtp.sendgrid.net"
                     placeholderTextColor="#64748B"
                   />
@@ -1151,6 +1184,8 @@ export default function AdminSettings() {
                   <Text style={styles.inputLabel}>Port SMTP</Text>
                   <TextInput
                     style={styles.input}
+                    value={localSMTPSettings.smtp_port}
+                    onChangeText={(text) => setLocalSMTPSettings({ ...localSMTPSettings, smtp_port: text })}
                     placeholder="587"
                     placeholderTextColor="#64748B"
                     keyboardType="number-pad"
@@ -1159,16 +1194,16 @@ export default function AdminSettings() {
 
                 <SecretInput
                   label="Nom d&apos;utilisateur SMTP"
-                  value=""
-                  onChangeText={(text) => {}}
+                  value={localSMTPSettings.smtp_user}
+                  onChangeText={(text) => setLocalSMTPSettings({ ...localSMTPSettings, smtp_user: text })}
                   fieldKey="smtpUsername"
                   placeholder="apikey (pour SendGrid)"
                 />
 
                 <SecretInput
                   label="Mot de passe SMTP / API Key"
-                  value=""
-                  onChangeText={(text) => {}}
+                  value={localSMTPSettings.smtp_password}
+                  onChangeText={(text) => setLocalSMTPSettings({ ...localSMTPSettings, smtp_password: text })}
                   fieldKey="smtpPassword"
                   placeholder="SG.xxxxxxxxxxxxxxxx"
                 />
@@ -1177,6 +1212,8 @@ export default function AdminSettings() {
                   <Text style={styles.inputLabel}>Email expéditeur</Text>
                   <TextInput
                     style={styles.input}
+                    value={localSMTPSettings.smtp_from_email}
+                    onChangeText={(text) => setLocalSMTPSettings({ ...localSMTPSettings, smtp_from_email: text })}
                     placeholder="noreply@votre-domaine.com"
                     placeholderTextColor="#64748B"
                     keyboardType="email-address"
@@ -1188,6 +1225,8 @@ export default function AdminSettings() {
                   <Text style={styles.inputLabel}>Nom de l&apos;expéditeur</Text>
                   <TextInput
                     style={styles.input}
+                    value={localSMTPSettings.smtp_from_name}
+                    onChangeText={(text) => setLocalSMTPSettings({ ...localSMTPSettings, smtp_from_name: text })}
                     placeholder="VocaIA"
                     placeholderTextColor="#64748B"
                   />
@@ -1205,11 +1244,22 @@ export default function AdminSettings() {
               <TouchableOpacity
                 style={styles.saveButton}
                 onPress={() => {
-                  Alert.alert('Info', 'La configuration SMTP sera bientôt disponible. Contactez le support pour l\'activer.');
+                  if (!localSMTPSettings.smtp_host || !localSMTPSettings.smtp_port || !localSMTPSettings.smtp_user || !localSMTPSettings.smtp_password || !localSMTPSettings.smtp_from_email) {
+                    Alert.alert('Erreur', 'Veuillez remplir tous les champs obligatoires');
+                    return;
+                  }
+                  updateSMTPSettingsMutation.mutate(localSMTPSettings);
                 }}
+                disabled={updateSMTPSettingsMutation.isPending}
               >
-                <Save size={20} color="#fff" />
-                <Text style={styles.saveButtonText}>Enregistrer SMTP</Text>
+                {updateSMTPSettingsMutation.isPending ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Save size={20} color="#fff" />
+                    <Text style={styles.saveButtonText}>Enregistrer SMTP</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
           </>
