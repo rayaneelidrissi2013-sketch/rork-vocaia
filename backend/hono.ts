@@ -70,6 +70,33 @@ app.get("/", (c) => {
 });
 
 /**
+ * ✅ Webhook PayPal - Callback après paiement
+ */
+app.get("/webhooks/paypal/return", async (c) => {
+  try {
+    console.log('[PayPal Webhook] Payment return callback received');
+    const token = c.req.query('token');
+    const PayerID = c.req.query('PayerID');
+
+    console.log('[PayPal Webhook] Token:', token, 'PayerID:', PayerID);
+
+    if (!token) {
+      return c.redirect('/?paypal=error');
+    }
+
+    return c.redirect(`/?paypal=success&token=${token}&PayerID=${PayerID || ''}`);
+  } catch (error) {
+    console.error('[PayPal Webhook] Error:', error);
+    return c.redirect('/?paypal=error');
+  }
+});
+
+app.get("/webhooks/paypal/cancel", async (c) => {
+  console.log('[PayPal Webhook] Payment cancelled');
+  return c.redirect('/?paypal=cancelled');
+});
+
+/**
  * ✅ Webhook Vapi
  */
 app.post("/webhooks/vapi/call-completed", async (c) => {

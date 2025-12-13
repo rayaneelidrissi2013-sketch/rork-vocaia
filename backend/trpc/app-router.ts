@@ -9,6 +9,7 @@ import getPlansRoute from "./routes/billing/getPlans/route";
 import getUserSubscriptionRoute from "./routes/billing/getUserSubscription/route";
 import renewSubscriptionsRoute from "./routes/billing/renewSubscriptions/route";
 import renewPlanEarlyRoute from "./routes/billing/renewPlanEarly/route";
+import completePayPalPaymentRoute from "./routes/billing/completePayPalPayment/route";
 
 // admin
 import getDashboardStatsRoute from "./routes/admin/getDashboardStats/route";
@@ -62,6 +63,7 @@ export const appRouter = createTRPCRouter({
     getUserSubscription: getUserSubscriptionRoute,
     renewSubscriptions: renewSubscriptionsRoute,
     renewPlanEarly: renewPlanEarlyRoute,
+    completePayPalPayment: completePayPalPaymentRoute,
   }),
 
   admin: createTRPCRouter({

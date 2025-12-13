@@ -1,5 +1,5 @@
-import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { trpc } from '@/lib/trpc';
@@ -23,12 +23,65 @@ const CARD_WIDTH = Math.min(width - 60, 340);
 
 export default function PricingScreen() {
   const router = useRouter();
-  const { setPlanActive } = useAuth();
+  const { user, setPlanActive } = useAuth();
+  const params = useLocalSearchParams();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   const plansQuery = trpc.billing.getPlans.useQuery();
   const createSubscriptionMutation = trpc.billing.createSubscription.useMutation();
+  const completePayPalPaymentMutation = trpc.billing.completePayPalPayment.useMutation();
+
+  const handlePayPalReturn = useCallback(async () => {
+    if (params.paypal === 'success' && params.token && user?.id) {
+      console.log('[Pricing] PayPal success detected, completing payment...');
+      setIsProcessing(true);
+      
+      try {
+        const result = await completePayPalPaymentMutation.mutateAsync({
+          orderId: params.token as string,
+          userId: user.id,
+        });
+
+        console.log('[Pricing] Payment completed successfully:', result);
+        
+        Alert.alert(
+          'Paiement réussi!',
+          `Votre abonnement a été activé avec succès. Vous disposez de ${result.subscription.minutesIncluded} minutes.`,
+          [
+            {
+              text: 'Continuer',
+              onPress: () => {
+                router.replace('/(tabs)');
+              },
+            },
+          ]
+        );
+      } catch (error: any) {
+        console.error('[Pricing] Error completing payment:', error);
+        Alert.alert(
+          'Erreur',
+          'Une erreur est survenue lors de l\'activation de votre abonnement. Veuillez contacter le support.'
+        );
+      } finally {
+        setIsProcessing(false);
+      }
+    } else if (params.paypal === 'cancelled') {
+      Alert.alert(
+        'Paiement annulé',
+        'Vous avez annulé le paiement PayPal.'
+      );
+    } else if (params.paypal === 'error') {
+      Alert.alert(
+        'Erreur',
+        'Une erreur est survenue lors du paiement PayPal.'
+      );
+    }
+  }, [params.paypal, params.token, user?.id, completePayPalPaymentMutation, router]);
+
+  useEffect(() => {
+    handlePayPalReturn();
+  }, [handlePayPalReturn]);
 
   const handleSubscribe = async (plan: SubscriptionPlan) => {
     if (plan.isEnterprise) {
@@ -102,21 +155,25 @@ export default function PricingScreen() {
     try {
       console.log('[Pricing] User subscribing to paid plan:', plan.id, plan.name);
       
-      const userId = 'mock-user-id';
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://vocaia-backend-clean-production.up.railway.app';
-      const returnUrl = `${baseUrl}/pricing?success=true&planId=${plan.id}`;
-      const cancelUrl = `${baseUrl}/pricing?cancelled=true`;
+      if (!user?.id) {
+        Alert.alert('Erreur', 'Vous devez être connecté pour souscrire à un pack');
+        return;
+      }
+
+      const backendUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL || 'https://vocaia-backend-clean-production.up.railway.app';
+      const returnUrl = `${backendUrl}/webhooks/paypal/return`;
+      const cancelUrl = `${backendUrl}/webhooks/paypal/cancel`;
 
       console.log('[Pricing] Creating PayPal order with:', {
         planId: plan.id,
-        userId,
+        userId: user.id,
         returnUrl,
         cancelUrl,
       });
 
       const result = await createSubscriptionMutation.mutateAsync({
         planId: plan.id,
-        userId,
+        userId: user.id,
         returnUrl,
         cancelUrl,
       });

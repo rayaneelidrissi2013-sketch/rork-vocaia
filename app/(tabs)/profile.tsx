@@ -13,15 +13,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { User, Mail, Phone, Globe, Clock, LogOut, Gift, ChevronRight, Package, ArrowRight } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { trpc } from '@/lib/trpc';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { language, changeLanguage } = useLanguage();
   const router = useRouter();
   const [showLanguageModal, setShowLanguageModal] = React.useState(false);
-  const [subscription, setSubscription] = React.useState<any>(null);
-  const [isLoadingSubscription, setIsLoadingSubscription] = React.useState(true);
+
+  const subscriptionQuery = trpc.billing.getUserSubscription.useQuery(
+    { userId: user?.id || '' },
+    { enabled: !!user?.id, refetchOnMount: 'always' }
+  );
 
   const handleLogout = () => {
     Alert.alert('Déconnexion', 'Voulez-vous vraiment vous déconnecter ?', [
@@ -37,24 +40,7 @@ export default function ProfileScreen() {
     ]);
   };
 
-  React.useEffect(() => {
-    const loadSubscription = async () => {
-      try {
-        setIsLoadingSubscription(true);
-        const stored = await AsyncStorage.getItem('user_subscription_mock');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          setSubscription(parsed);
-          console.log('[Profile] Loaded subscription:', parsed);
-        }
-      } catch (error) {
-        console.error('[Profile] Error loading subscription:', error);
-      } finally {
-        setIsLoadingSubscription(false);
-      }
-    };
-    loadSubscription();
-  }, []);
+
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -154,12 +140,12 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Pack actif</Text>
 
           <View style={styles.card}>
-            {isLoadingSubscription ? (
+            {subscriptionQuery.isLoading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator color="#3B82F6" />
                 <Text style={styles.loadingText}>Chargement...</Text>
               </View>
-            ) : subscription ? (
+            ) : subscriptionQuery.data ? (
               <>
                 <View style={styles.infoRow}>
                   <View style={styles.iconContainer}>
@@ -167,7 +153,7 @@ export default function ProfileScreen() {
                   </View>
                   <View style={styles.infoContent}>
                     <Text style={styles.infoLabel}>Pack</Text>
-                    <Text style={styles.infoValue}>{subscription.planName}</Text>
+                    <Text style={styles.infoValue}>{subscriptionQuery.data.planName}</Text>
                   </View>
                 </View>
 
@@ -176,7 +162,7 @@ export default function ProfileScreen() {
                 <View style={styles.infoRow}>
                   <View style={styles.infoContent}>
                     <Text style={styles.infoLabel}>Minutes incluses</Text>
-                    <Text style={styles.infoValue}>{subscription.minutesIncluded} minute{subscription.minutesIncluded > 1 ? 's' : ''}</Text>
+                    <Text style={styles.infoValue}>{subscriptionQuery.data.minutesIncluded} minute{subscriptionQuery.data.minutesIncluded > 1 ? 's' : ''}</Text>
                   </View>
                 </View>
 
@@ -185,8 +171,8 @@ export default function ProfileScreen() {
                 <View style={styles.infoRow}>
                   <View style={styles.infoContent}>
                     <Text style={styles.infoLabel}>Minutes restantes</Text>
-                    <Text style={[styles.infoValue, { color: subscription.minutesRemaining > 0 ? '#10B981' : '#EF4444' }]}>
-                      {subscription.minutesRemaining} minute{subscription.minutesRemaining > 1 ? 's' : ''}
+                    <Text style={[styles.infoValue, { color: subscriptionQuery.data.minutesRemaining > 0 ? '#10B981' : '#EF4444' }]}>
+                      {subscriptionQuery.data.minutesRemaining} minute{subscriptionQuery.data.minutesRemaining > 1 ? 's' : ''}
                     </Text>
                   </View>
                 </View>
@@ -197,7 +183,7 @@ export default function ProfileScreen() {
                   <View style={styles.infoContent}>
                     <Text style={styles.infoLabel}>Renouvellement</Text>
                     <Text style={styles.infoValue}>
-                      {subscription.renewalDate ? formatDate(subscription.renewalDate) : '-'}
+                      {subscriptionQuery.data.renewalDate ? formatDate(subscriptionQuery.data.renewalDate) : '-'}
                     </Text>
                   </View>
                 </View>
