@@ -64,37 +64,61 @@ let tokenExpiry: number = 0;
 
 async function getAccessToken(): Promise<string> {
   if (cachedAccessToken && Date.now() < tokenExpiry) {
+    console.log('[PayPal] Using cached access token');
     return cachedAccessToken;
   }
 
-  const settings = await getPayPalSettings();
-  const { clientId, clientSecret, mode } = settings;
+  console.log('[PayPal] Fetching new access token...');
+  
+  try {
+    const settings = await getPayPalSettings();
+    const { clientId, clientSecret, mode } = settings;
 
-  if (!clientId || !clientSecret) {
-    throw new Error('PayPal credentials not configured');
+    console.log('[PayPal] Settings loaded:', {
+      hasClientId: !!clientId,
+      hasClientSecret: !!clientSecret,
+      mode,
+    });
+
+    if (!clientId || !clientSecret) {
+      throw new Error('Identifiants PayPal non configurés. Veuillez configurer vos clés PayPal dans les paramètres admin.');
+    }
+
+    const PAYPAL_API_BASE = getPayPalApiBase(mode);
+    console.log('[PayPal] API Base URL:', PAYPAL_API_BASE);
+    
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+    console.log('[PayPal] Requesting access token...');
+    const response = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'grant_type=client_credentials',
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[PayPal] Auth failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+      });
+      throw new Error(`Authentification PayPal échouée (${response.status}): Vérifiez vos identifiants PayPal. ${errorText}`);
+    }
+
+    const data = await response.json() as PayPalAccessToken;
+    cachedAccessToken = data.access_token;
+    tokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+
+    console.log('[PayPal] Access token obtained successfully');
+    return cachedAccessToken;
+  } catch (error: any) {
+    console.error('[PayPal] getAccessToken error:', error);
+    throw error;
   }
-
-  const PAYPAL_API_BASE = getPayPalApiBase(mode);
-  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-
-  const response = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  });
-
-  if (!response.ok) {
-    throw new Error(`PayPal auth failed: ${response.statusText}`);
-  }
-
-  const data = await response.json() as PayPalAccessToken;
-  cachedAccessToken = data.access_token;
-  tokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
-
-  return cachedAccessToken;
 }
 
 export async function createSubscription(
@@ -103,17 +127,14 @@ export async function createSubscription(
   returnUrl: string,
   cancelUrl: string
 ): Promise<{ id: string; approvalUrl: string }> {
-  const accessToken = await getAccessToken();
-  const settings = await getPayPalSettings();
-  const PAYPAL_API_BASE = getPayPalApiBase(settings.mode);
+  console.log('[PayPal] Creating subscription:', { planId, userId });
+  
+  try {
+    const accessToken = await getAccessToken();
+    const settings = await getPayPalSettings();
+    const PAYPAL_API_BASE = getPayPalApiBase(settings.mode);
 
-  const response = await fetch(`${PAYPAL_API_BASE}/v1/billing/subscriptions`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+    const requestBody = {
       plan_id: planId,
       custom_id: userId,
       application_context: {
@@ -122,22 +143,64 @@ export async function createSubscription(
         brand_name: 'VocaIA',
         user_action: 'SUBSCRIBE_NOW',
       },
-    }),
-  });
+    };
 
-  if (!response.ok) {
-    const error = await response.text();
-    console.error('PayPal subscription creation failed:', error);
-    throw new Error('Failed to create subscription');
+    console.log('[PayPal] Request body:', JSON.stringify(requestBody, null, 2));
+
+    const response = await fetch(`${PAYPAL_API_BASE}/v1/billing/subscriptions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[PayPal] Subscription creation failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+      });
+      
+      let errorMessage = 'Impossible de créer l\'abonnement PayPal';
+      
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+        if (errorData.details && errorData.details.length > 0) {
+          errorMessage += ': ' + errorData.details.map((d: any) => d.description || d.issue).join(', ');
+        }
+      } catch {
+        errorMessage += `: ${response.statusText}`;
+      }
+      
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    console.log('[PayPal] Subscription created:', data.id);
+    
+    const approvalUrl = data.links.find((link: any) => link.rel === 'approve')?.href || '';
+
+    if (!approvalUrl) {
+      console.error('[PayPal] No approval URL found in response:', data);
+      throw new Error('URL d\'approbation PayPal introuvable');
+    }
+
+    console.log('[PayPal] Approval URL:', approvalUrl);
+
+    return {
+      id: data.id,
+      approvalUrl,
+    };
+  } catch (error: any) {
+    console.error('[PayPal] createSubscription error:', error);
+    throw error;
   }
-
-  const data = await response.json();
-  const approvalUrl = data.links.find((link: any) => link.rel === 'approve')?.href || '';
-
-  return {
-    id: data.id,
-    approvalUrl,
-  };
 }
 
 export async function getSubscriptionDetails(subscriptionId: string) {

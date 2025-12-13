@@ -17,7 +17,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Check, Sparkles } from 'lucide-react-native';
 import { SubscriptionPlan } from '@/types';
-import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.min(width - 60, 340);
@@ -28,6 +27,7 @@ export default function PricingScreen() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
+  const plansQuery = trpc.billing.getPlans.useQuery();
   const createSubscriptionMutation = trpc.billing.createSubscription.useMutation();
 
   const handleSubscribe = async (plan: SubscriptionPlan) => {
@@ -224,9 +224,20 @@ Notre solution tout-en-un automatise et archive 100% de vos communications.</Tex
 
 
 
-          <View style={styles.plansContainer}>
-            {SUBSCRIPTION_PLANS.map(plan => renderPlanCard(plan))}
-          </View>
+          {plansQuery.isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#3B82F6" />
+              <Text style={styles.loadingText}>Chargement des packs...</Text>
+            </View>
+          ) : plansQuery.isError ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>Erreur lors du chargement des packs</Text>
+            </View>
+          ) : (
+            <View style={styles.plansContainer}>
+              {(plansQuery.data?.plans || []).map(plan => renderPlanCard(plan))}
+            </View>
+          )}
 
 
         </ScrollView>
