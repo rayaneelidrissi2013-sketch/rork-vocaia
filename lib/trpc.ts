@@ -35,18 +35,15 @@ export const trpcClient = trpc.createClient({
         };
       },
       fetch: async (input, init?) => {
-        console.log('[tRPC] 🌐 ========================================');
-        console.log('[tRPC] 🌐 Starting fetch...');
-        console.log('[tRPC] 🌐 URL:', input);
-        console.log('[tRPC] 🌐 Method:', init?.method || 'GET');
-        console.log('[tRPC] 🌐 Headers:', JSON.stringify(init?.headers, null, 2));
-        console.log('[tRPC] 🌐 Body (first 100 chars):', typeof init?.body === 'string' ? init.body.substring(0, 100) : init?.body);
-        console.log('[tRPC] 🌐 ========================================');
+        const isDev = __DEV__;
+        if (isDev) {
+          console.log('[tRPC] 🌐 Fetch:', init?.method || 'GET', input.toString().split('?')[0]);
+        }
         
-        const timeoutMs = 15000;
+        const timeoutMs = 10000;
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
-          console.error('[tRPC] ⏱️ Request timeout after', timeoutMs, 'ms');
+          if (__DEV__) console.error('[tRPC] ⏱️ Timeout');
           controller.abort();
         }, timeoutMs);
 
@@ -62,18 +59,13 @@ export const trpcClient = trpc.createClient({
           
           clearTimeout(timeoutId);
           
-          console.log('[tRPC] ✅ ========================================');
-          console.log('[tRPC] ✅ Response received');
-          console.log('[tRPC] ✅ Status:', response.status, response.statusText);
-          console.log('[tRPC] ✅ Headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
-          
           const text = await response.text();
-          console.log('[tRPC] ✅ Body (first 300 chars):', text.substring(0, 300));
-          console.log('[tRPC] ✅ ========================================');
           
           if (!response.ok) {
-            console.error('[tRPC] ❌ HTTP Error:', response.status, response.statusText);
-            console.error('[tRPC] ❌ Response body:', text);
+            if (__DEV__) {
+              console.error('[tRPC] ❌ HTTP Error:', response.status);
+              console.error('[tRPC] ❌ Body:', text.substring(0, 200));
+            }
             throw new Error(`HTTP ${response.status}: ${text.substring(0, 200)}`);
           }
           
@@ -85,25 +77,12 @@ export const trpcClient = trpc.createClient({
         } catch (error: any) {
           clearTimeout(timeoutId);
           
-          console.error('[tRPC] ❌ ========================================');
-          console.error('[tRPC] ❌ FETCH ERROR');
-          console.error('[tRPC] ❌ URL:', input);
-          console.error('[tRPC] ❌ Error type:', error?.constructor?.name);
-          console.error('[tRPC] ❌ Error name:', error?.name);
-          console.error('[tRPC] ❌ Error message:', error?.message);
-          
-          if (error?.name === 'AbortError') {
-            console.error('[tRPC] ❌ Request was aborted (timeout)');
-          } else if (error?.message?.includes('Network request failed')) {
-            console.error('[tRPC] ❌ Network error - Check:');
-            console.error('[tRPC] ❌   1. Railway backend is running');
-            console.error('[tRPC] ❌   2. URL is correct:', input);
-            console.error('[tRPC] ❌   3. CORS is configured');
-            console.error('[tRPC] ❌   4. SSL certificate is valid');
+          if (__DEV__) {
+            console.error('[tRPC] ❌ Error:', error?.message);
+            if (error?.name === 'AbortError') {
+              console.error('[tRPC] ❌ Timeout');
+            }
           }
-          
-          console.error('[tRPC] ❌ Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
-          console.error('[tRPC] ❌ ========================================');
           
           throw new Error(`tRPC fetch failed: ${error?.message || 'Unknown error'}`);
         }

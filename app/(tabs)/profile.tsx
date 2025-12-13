@@ -190,7 +190,11 @@ export default function ProfileScreen() {
 
                 <TouchableOpacity
                   style={styles.changePlanButton}
-                  onPress={() => router.push('/pricing' as any)}
+                  onPress={() => {
+                    if (subscriptionQuery.data?.planId) {
+                      router.push(`/pricing?upgrade=true&currentPlanId=${subscriptionQuery.data.planId}` as any);
+                    }
+                  }}
                 >
                   <Text style={styles.changePlanButtonText}>Changer de pack</Text>
                   <ArrowRight size={20} color="#fff" />

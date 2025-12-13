@@ -28,7 +28,11 @@ export default function PricingScreen() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
-  const plansQuery = trpc.billing.getPlans.useQuery();
+  const plansQuery = trpc.billing.getPlans.useQuery(
+    params.upgrade === 'true' && params.currentPlanId 
+      ? { currentPlanId: params.currentPlanId as string, upgradeOnly: true }
+      : undefined
+  );
   const createSubscriptionMutation = trpc.billing.createSubscription.useMutation();
   const completePayPalPaymentMutation = trpc.billing.completePayPalPayment.useMutation();
 
@@ -301,7 +305,9 @@ export default function PricingScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text style={styles.title}>Choisissez l&apos;efficacité qui vous correspond</Text>
+            <Text style={styles.title}>
+              {params.upgrade === 'true' ? 'Choisissez un pack supérieur' : 'Choisissez l\'efficacité qui vous correspond'}
+            </Text>
             <Text style={styles.subtitle}>Ne manquez plus jamais un appel ni une opportunité.
 Notre solution tout-en-un automatise et archive 100% de vos communications.</Text>
             <Text style={styles.description}>

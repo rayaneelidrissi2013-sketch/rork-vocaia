@@ -48,6 +48,7 @@ import { sendVerificationCodeProcedure } from "./routes/auth/sendVerificationCod
 import { verifyCodeProcedure } from "./routes/auth/verifyCode/route";
 import { registerProcedure } from "./routes/auth/register";
 import { loginProcedure } from "./routes/auth/login/route";
+import { forgotPasswordProcedure } from "./routes/auth/forgotPassword/route";
 
 // user
 import { assignVirtualNumberProcedure } from "./routes/user/assignVirtualNumber/route";
@@ -107,6 +108,7 @@ export const appRouter = createTRPCRouter({
     verifyCode: verifyCodeProcedure,
     register: registerProcedure,
     login: loginProcedure,
+    forgotPassword: forgotPasswordProcedure,
   }),
 
   user: createTRPCRouter({

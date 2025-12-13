@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration PayPal - VocaIA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #E2E8F0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1E293B;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #94A3B8;
+            line-height: 24px;
+        }
+
+        .status {
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .status.success {
+            background: #064E3B;
+            border: 1px solid #10B981;
+            color: #10B981;
+            display: block;
+        }
+
+        .status.error {
+            background: #450A0A;
+            border: 1px solid #EF4444;
+            color: #EF4444;
+            display: block;
+        }
+
+        .status.info {
+            background: #1E3A8A;
+            border: 1px solid #3B82F6;
+            color: #3B82F6;
+            display: block;
+        }
+
+        .migration-section {
+            background: #0F172A;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #334155;
+        }
+
+        .migration-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .migration-section p {
+            font-size: 14px;
+            color: #94A3B8;
+            line-height: 22px;
+            margin-bottom: 12px;
+        }
+
+        .code-block {
+            background: #000;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #10B981;
+            overflow-x: auto;
+            margin: 12px 0;
+            border: 1px solid #334155;
+        }
+
+        .button {
+            background: #3B82F6;
+            color: #fff;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .button:hover {
+            background: #2563EB;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            background: #334155;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .steps li {
+            counter-increment: step-counter;
+            position: relative;
+            padding-left: 50px;
+            margin-bottom: 24px;
+        }
+
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 32px;
+            height: 32px;
+            background: #3B82F6;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .steps li strong {
+            color: #fff;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .warning {
+            background: #451A03;
+            border: 1px solid #F59E0B;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .warning-title {
+            color: #F59E0B;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-title::before {
+            content: "⚠️";
+        }
+
+        .warning p {
+            color: #FCD34D;
+            font-size: 14px;
+        }
+
+        #log {
+            background: #000;
+            border-radius: 8px;
+            padding: 16px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #94A3B8;
+            border: 1px solid #334155;
+            margin-top: 16px;
+        }
+
+        #log .log-success {
+            color: #10B981;
+        }
+
+        #log .log-error {
+            color: #EF4444;
+        }
+
+        #log .log-info {
+            color: #3B82F6;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #334155;
+            color: #64748B;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Migration PayPal</h1>
+            <p>Outil de migration pour intégrer PayPal dans VocaIA</p>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div class="migration-section">
+            <h2>Instructions</h2>
+            <ol class="steps">
+                <li>
+                    <strong>Vérifier la connexion à la base de données</strong>
+                    <p>Assurez-vous que DATABASE_URL est correctement configuré dans vos variables d'environnement.</p>
+                </li>
+                <li>
+                    <strong>Exécuter la migration SQL</strong>
+                    <p>Cette migration ajoutera les tables et colonnes nécessaires pour PayPal.</p>
+                </li>
+                <li>
+                    <strong>Configurer PayPal</strong>
+                    <p>Après la migration, connectez-vous à votre console d'administration pour configurer vos identifiants PayPal.</p>
+                </li>
+            </ol>
+
+            <div class="warning">
+                <div class="warning-title">Important</div>
+                <p>Cette migration doit être exécutée UNE SEULE FOIS. Si elle a déjà été exécutée, certaines étapes peuvent échouer sans conséquences.</p>
+            </div>
+        </div>
+
+        <div class="migration-section">
+            <h2>SQL de Migration</h2>
+            <p>Voici le SQL qui sera exécuté :</p>
+            <div class="code-block">-- Créer la table paypal_settings si elle n'existe pas
+CREATE TABLE IF NOT EXISTS paypal_settings (
+  id SERIAL PRIMARY KEY,
+  client_id TEXT NOT NULL,
+  client_secret TEXT NOT NULL,
+  mode VARCHAR(20) DEFAULT 'sandbox',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Ajouter la colonne payment_method si elle n'existe pas
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name='user_subscriptions' 
+    AND column_name='payment_method'
+  ) THEN
+    ALTER TABLE user_subscriptions 
+    ADD COLUMN payment_method VARCHAR(50) DEFAULT 'free';
+  END IF;
+END $$;
+
+-- Ajouter la colonne paypal_order_id si elle n'existe pas
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name='user_subscriptions' 
+    AND column_name='paypal_order_id'
+  ) THEN
+    ALTER TABLE user_subscriptions 
+    ADD COLUMN paypal_order_id TEXT;
+  END IF;
+END $$;
+
+-- Ajouter la colonne paypal_subscription_id si elle n'existe pas
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name='user_subscriptions' 
+    AND column_name='paypal_subscription_id'
+  ) THEN
+    ALTER TABLE user_subscriptions 
+    ADD COLUMN paypal_subscription_id TEXT;
+  END IF;
+END $$;</div>
+        </div>
+
+        <div class="migration-section">
+            <h2>Exécution</h2>
+            <p>Cliquez sur le bouton ci-dessous pour exécuter la migration :</p>
+            <button class="button" id="migrateBtn" onclick="runMigration()">Exécuter la migration</button>
+            
+            <div id="log"></div>
+        </div>
+
+        <div class="footer">
+            <p>VocaIA © 2024 - Outil de migration PayPal</p>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString('fr-FR');
+            const className = `log-${type}`;
+            logDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        async function runMigration() {
+            const btn = document.getElementById('migrateBtn');
+            btn.disabled = true;
+            btn.textContent = 'Migration en cours...';
+            
+            document.getElementById('log').innerHTML = '';
+            showStatus('Migration en cours...', 'info');
+            
+            log('🚀 Démarrage de la migration PayPal', 'info');
+            
+            try {
+                // Appel à l'API backend pour exécuter la migration
+                const API_URL = 'https://vocaia-backend-clean-production.up.railway.app';
+                
+                log('📡 Connexion au serveur backend...', 'info');
+                
+                const response = await fetch(`${API_URL}/api/trpc/admin.runMigration`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                log('✅ Migration terminée avec succès', 'success');
+                log(`📊 Tables créées/vérifiées: paypal_settings, user_subscriptions`, 'success');
+                
+                showStatus('✅ Migration réussie ! Vous pouvez maintenant configurer PayPal dans votre console d\'administration.', 'success');
+                
+                btn.textContent = 'Migration terminée';
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                showStatus(`❌ Erreur lors de la migration: ${error.message}`, 'error');
+                
+                btn.disabled = false;
+                btn.textContent = 'Réessayer la migration';
+            }
+        }
+
+        // Log initial
+        log('✨ Outil de migration prêt', 'success');
+    </script>
+</body>
+</html>

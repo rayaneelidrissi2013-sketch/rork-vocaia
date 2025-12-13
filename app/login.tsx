@@ -420,15 +420,7 @@ export default function LoginScreen() {
             {isLogin && (
               <TouchableOpacity
                 style={styles.forgotPasswordButton}
-                onPress={() => {
-                  Alert.alert(
-                    'Mot de passe oublié ?',
-                    'Pour réinitialiser votre mot de passe, veuillez contacter le support à support@vocaia.com avec votre adresse email.',
-                    [
-                      { text: 'OK', style: 'default' }
-                    ]
-                  );
-                }}
+                onPress={() => router.push('/forgot-password' as any)}
               >
                 <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
               </TouchableOpacity>

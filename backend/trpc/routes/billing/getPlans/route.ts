@@ -1,5 +1,6 @@
 import { publicProcedure } from '@/backend/trpc/create-context';
 import { Pool } from 'pg';
+import { z } from 'zod';
 
 let pool: Pool | null = null;
 
@@ -24,7 +25,11 @@ const getPool = (): Pool => {
 };
 
 export default publicProcedure
-  .query(async () => {
+  .input(z.object({ 
+    currentPlanId: z.string().optional(),
+    upgradeOnly: z.boolean().optional() 
+  }).optional())
+  .query(async ({ input }) => {
     console.log('[tRPC] Getting subscription plans from database');
     
     try {
@@ -45,7 +50,7 @@ export default publicProcedure
           END ASC`
       );
 
-      const plans = result.rows.map((row: any) => ({
+      let plans = result.rows.map((row: any) => ({
         id: row.id,
         name: row.name,
         minutesIncluded: row.minutes_included,
@@ -54,6 +59,18 @@ export default publicProcedure
         isRecommended: row.is_recommended,
         isEnterprise: row.id === 'entreprise',
       }));
+
+      if (input?.upgradeOnly && input?.currentPlanId) {
+        const currentPlan = plans.find(p => p.id === input.currentPlanId);
+        if (currentPlan) {
+          console.log(`[tRPC] Filtering plans superior to ${input.currentPlanId} (price: ${currentPlan.price})`);
+          plans = plans.filter(p => {
+            if (p.isEnterprise) return true;
+            if (p.id === input.currentPlanId) return false;
+            return p.price > currentPlan.price;
+          });
+        }
+      }
 
       console.log(`[tRPC] Found ${plans.length} subscription plans`);
       
