@@ -216,7 +216,10 @@ export default function DashboardScreen() {
             <Text style={styles.kpiValue}>{planData?.name || 'Aucun plan'}</Text>
             <TouchableOpacity
               style={styles.changePackButton}
-              onPress={() => router.push('/pricing' as any)}
+              onPress={() => {
+                const currentPlanId = subscription?.planId || 'gratuit';
+                router.push(`/pricing?upgrade=true&currentPlanId=${currentPlanId}` as any);
+              }}
             >
               <Text style={styles.changePackButtonText}>Choisir un pack</Text>
             </TouchableOpacity>

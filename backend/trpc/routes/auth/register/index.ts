@@ -4,6 +4,30 @@ import { db, getPool } from '@/backend/utils/database';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
+function extractCountryCode(phoneNumber: string): string {
+  const phoneClean = phoneNumber.replace(/[^\d+]/g, '');
+  
+  if (phoneClean.startsWith('+33')) return '+33';
+  if (phoneClean.startsWith('+32')) return '+32';
+  if (phoneClean.startsWith('+41')) return '+41';
+  if (phoneClean.startsWith('+1')) return '+1';
+  if (phoneClean.startsWith('+352')) return '+352';
+  if (phoneClean.startsWith('+44')) return '+44';
+  if (phoneClean.startsWith('+49')) return '+49';
+  if (phoneClean.startsWith('+39')) return '+39';
+  if (phoneClean.startsWith('+34')) return '+34';
+  if (phoneClean.startsWith('+351')) return '+351';
+  if (phoneClean.startsWith('+31')) return '+31';
+  if (phoneClean.startsWith('+212')) return '+212';
+  if (phoneClean.startsWith('+213')) return '+213';
+  if (phoneClean.startsWith('+216')) return '+216';
+  if (phoneClean.startsWith('+225')) return '+225';
+  if (phoneClean.startsWith('+221')) return '+221';
+  if (phoneClean.startsWith('+237')) return '+237';
+  
+  return '+33';
+}
+
 export const registerProcedure = publicProcedure
   .input(
     z.object({
@@ -57,10 +81,29 @@ export const registerProcedure = publicProcedure
       const referralCode = crypto.randomBytes(4).toString('hex').toUpperCase();
       console.log('[REGISTER] Step 5: Referral code generated:', referralCode);
       
-      const countryCode = input.phoneNumber.substring(0, input.phoneNumber.indexOf(' ') > 0 ? input.phoneNumber.indexOf(' ') : 3);
-      const virtualNumber = '+16072953560';
+      const countryCode = extractCountryCode(input.phoneNumber);
       console.log('[REGISTER] Step 6: Country code detected:', countryCode);
-      console.log('[REGISTER] Step 7: Assigning virtual number:', virtualNumber);
+      
+      const virtualNumberResult = await pool.query(
+        `SELECT id, phone_number FROM virtual_numbers 
+         WHERE country_code = $1 
+         AND (assigned_user_id IS NULL OR assigned_user_id = '')
+         LIMIT 1`,
+        [countryCode]
+      );
+      
+      let virtualNumber: string;
+      let virtualNumberId: string | null = null;
+      
+      if (virtualNumberResult.rows.length > 0) {
+        virtualNumber = virtualNumberResult.rows[0].phone_number;
+        virtualNumberId = virtualNumberResult.rows[0].id;
+        console.log('[REGISTER] Step 7: Virtual number found for country', countryCode, ':', virtualNumber);
+      } else {
+        console.warn('[REGISTER] No virtual number available for country:', countryCode);
+        virtualNumber = '+16072953560';
+        console.log('[REGISTER] Step 7: Using default virtual number:', virtualNumber);
+      }
 
       const userData = {
         email: input.email,
@@ -90,6 +133,15 @@ export const registerProcedure = publicProcedure
 
       console.log('[REGISTER] Step 9: Creating user in database...');
       const newUser = await db.users.create(userData);
+      
+      if (virtualNumberId) {
+        console.log('[REGISTER] Step 10: Assigning virtual number to user...');
+        await pool.query(
+          `UPDATE virtual_numbers SET assigned_user_id = $1 WHERE id = $2`,
+          [newUser.id, virtualNumberId]
+        );
+        console.log('[REGISTER] Virtual number assigned successfully');
+      }
 
       console.log('[REGISTER] ✅ User created successfully!');
       console.log('[REGISTER] User ID:', newUser.id);

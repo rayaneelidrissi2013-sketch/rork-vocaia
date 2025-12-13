@@ -59,7 +59,7 @@ export default function AdminSettings() {
   const [localKeys, setLocalKeys] = useState(apiKeys);
   const [localSettings, setLocalSettings] = useState(globalSettings);
   const [showSecrets, setShowSecrets] = useState<{ [key: string]: boolean }>({});
-  const [activeSection, setActiveSection] = useState<'keys' | 'agent' | 'pricing' | 'cgu' | 'countries' | 'paypal'>('keys');
+  const [activeSection, setActiveSection] = useState<'keys' | 'agent' | 'pricing' | 'cgu' | 'countries' | 'paypal' | 'smtp'>('keys');
   const [editingPlan, setEditingPlan] = useState<string | null>(null);
   const [planEdits, setPlanEdits] = useState<{ [key: string]: Partial<PlanEditState> }>({});
   const [isCreatingPlan, setIsCreatingPlan] = useState<boolean>(false);
@@ -451,6 +451,15 @@ export default function AdminSettings() {
           <DollarSign size={18} color={activeSection === 'paypal' ? '#8B5CF6' : '#64748B'} />
           <Text style={[styles.tabText, activeSection === 'paypal' && styles.tabTextActive]}>
             PayPal
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeSection === 'smtp' && styles.tabActive]}
+          onPress={() => setActiveSection('smtp')}
+        >
+          <FileText size={18} color={activeSection === 'smtp' ? '#8B5CF6' : '#64748B'} />
+          <Text style={[styles.tabText, activeSection === 'smtp' && styles.tabTextActive]}>
+            SMTP
           </Text>
         </TouchableOpacity>
       </View>
@@ -1111,6 +1120,96 @@ export default function AdminSettings() {
                     <Text style={styles.saveButtonText}>Enregistrer PayPal</Text>
                   </>
                 )}
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
+        {activeSection === 'smtp' && (
+          <>
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <FileText size={24} color="#10B981" />
+                <Text style={styles.sectionTitle}>Configuration SMTP pour Emails</Text>
+              </View>
+              <Text style={styles.pricingDescription}>
+                Configurez vos identifiants SMTP pour l&apos;envoi d&apos;emails (réinitialisation de mot de passe, notifications, etc.).
+                Vous pouvez utiliser Twilio SendGrid, Gmail, ou tout autre service SMTP.
+              </Text>
+
+              <View style={styles.card}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Hôte SMTP</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="smtp.sendgrid.net"
+                    placeholderTextColor="#64748B"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Port SMTP</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="587"
+                    placeholderTextColor="#64748B"
+                    keyboardType="number-pad"
+                  />
+                </View>
+
+                <SecretInput
+                  label="Nom d&apos;utilisateur SMTP"
+                  value=""
+                  onChangeText={(text) => {}}
+                  fieldKey="smtpUsername"
+                  placeholder="apikey (pour SendGrid)"
+                />
+
+                <SecretInput
+                  label="Mot de passe SMTP / API Key"
+                  value=""
+                  onChangeText={(text) => {}}
+                  fieldKey="smtpPassword"
+                  placeholder="SG.xxxxxxxxxxxxxxxx"
+                />
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Email expéditeur</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="noreply@votre-domaine.com"
+                    placeholderTextColor="#64748B"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Nom de l&apos;expéditeur</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="VocaIA"
+                    placeholderTextColor="#64748B"
+                  />
+                </View>
+
+                <Text style={styles.helpText}>
+                  <Text style={styles.linkText}>Twilio SendGrid</Text>: Utilisez &apos;smtp.sendgrid.net&apos; (port 587), username: &apos;apikey&apos;, password: votre API Key SendGrid.
+                  {"\n"}
+                  <Text style={styles.linkText}>Gmail</Text>: Utilisez &apos;smtp.gmail.com&apos; (port 587) avec un mot de passe d&apos;application.
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={() => {
+                  Alert.alert('Info', 'La configuration SMTP sera bientôt disponible. Contactez le support pour l\'activer.');
+                }}
+              >
+                <Save size={20} color="#fff" />
+                <Text style={styles.saveButtonText}>Enregistrer SMTP</Text>
               </TouchableOpacity>
             </View>
           </>
