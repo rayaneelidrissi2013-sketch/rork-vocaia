@@ -6,18 +6,22 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { User, Mail, Phone, Globe, Clock, LogOut, Gift, ChevronRight } from 'lucide-react-native';
+import { User, Mail, Phone, Globe, Clock, LogOut, Gift, ChevronRight, Package, ArrowRight } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { language, changeLanguage } = useLanguage();
   const router = useRouter();
   const [showLanguageModal, setShowLanguageModal] = React.useState(false);
+  const [subscription, setSubscription] = React.useState<any>(null);
+  const [isLoadingSubscription, setIsLoadingSubscription] = React.useState(true);
 
   const handleLogout = () => {
     Alert.alert('Déconnexion', 'Voulez-vous vraiment vous déconnecter ?', [
@@ -32,6 +36,25 @@ export default function ProfileScreen() {
       },
     ]);
   };
+
+  React.useEffect(() => {
+    const loadSubscription = async () => {
+      try {
+        setIsLoadingSubscription(true);
+        const stored = await AsyncStorage.getItem('user_subscription_mock');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setSubscription(parsed);
+          console.log('[Profile] Loaded subscription:', parsed);
+        }
+      } catch (error) {
+        console.error('[Profile] Error loading subscription:', error);
+      } finally {
+        setIsLoadingSubscription(false);
+      }
+    };
+    loadSubscription();
+  }, []);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -124,6 +147,82 @@ export default function ProfileScreen() {
                 <Text style={styles.infoValue}>{user?.timezone}</Text>
               </View>
             </View>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Pack actif</Text>
+
+          <View style={styles.card}>
+            {isLoadingSubscription ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator color="#3B82F6" />
+                <Text style={styles.loadingText}>Chargement...</Text>
+              </View>
+            ) : subscription ? (
+              <>
+                <View style={styles.infoRow}>
+                  <View style={styles.iconContainer}>
+                    <Package size={20} color="#8B5CF6" />
+                  </View>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Pack</Text>
+                    <Text style={styles.infoValue}>{subscription.planName}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.divider} />
+
+                <View style={styles.infoRow}>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Minutes incluses</Text>
+                    <Text style={styles.infoValue}>{subscription.minutesIncluded} minute{subscription.minutesIncluded > 1 ? 's' : ''}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.divider} />
+
+                <View style={styles.infoRow}>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Minutes restantes</Text>
+                    <Text style={[styles.infoValue, { color: subscription.minutesRemaining > 0 ? '#10B981' : '#EF4444' }]}>
+                      {subscription.minutesRemaining} minute{subscription.minutesRemaining > 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.divider} />
+
+                <View style={styles.infoRow}>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Renouvellement</Text>
+                    <Text style={styles.infoValue}>
+                      {subscription.renewalDate ? formatDate(subscription.renewalDate) : '-'}
+                    </Text>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.changePlanButton}
+                  onPress={() => router.push('/pricing' as any)}
+                >
+                  <Text style={styles.changePlanButtonText}>Changer de pack</Text>
+                  <ArrowRight size={20} color="#fff" />
+                </TouchableOpacity>
+              </>
+            ) : (
+              <View style={styles.noSubscriptionContainer}>
+                <Package size={48} color="#64748B" />
+                <Text style={styles.noSubscriptionText}>Aucun pack actif</Text>
+                <TouchableOpacity
+                  style={styles.choosePlanButton}
+                  onPress={() => router.push('/pricing' as any)}
+                >
+                  <Text style={styles.choosePlanButtonText}>Choisir un pack</Text>
+                  <ArrowRight size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </View>
 
@@ -403,5 +502,56 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600' as const,
     color: '#64748B',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 14,
+    color: '#94A3B8',
+  },
+  changePlanButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3B82F6',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 16,
+    gap: 8,
+  },
+  changePlanButtonText: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#fff',
+  },
+  noSubscriptionContainer: {
+    alignItems: 'center',
+    padding: 24,
+    gap: 16,
+  },
+  noSubscriptionText: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: '#94A3B8',
+  },
+  choosePlanButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3B82F6',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 8,
+    gap: 8,
+  },
+  choosePlanButtonText: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#fff',
   },
 });

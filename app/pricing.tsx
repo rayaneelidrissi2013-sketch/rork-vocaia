@@ -103,8 +103,16 @@ export default function PricingScreen() {
       console.log('[Pricing] User subscribing to paid plan:', plan.id, plan.name);
       
       const userId = 'mock-user-id';
-      const returnUrl = `${window.location.origin}/pricing?success=true&planId=${plan.id}`;
-      const cancelUrl = `${window.location.origin}/pricing?cancelled=true`;
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://vocaia-backend-clean-production.up.railway.app';
+      const returnUrl = `${baseUrl}/pricing?success=true&planId=${plan.id}`;
+      const cancelUrl = `${baseUrl}/pricing?cancelled=true`;
+
+      console.log('[Pricing] Creating PayPal order with:', {
+        planId: plan.id,
+        userId,
+        returnUrl,
+        cancelUrl,
+      });
 
       const result = await createSubscriptionMutation.mutateAsync({
         planId: plan.id,
@@ -113,15 +121,37 @@ export default function PricingScreen() {
         cancelUrl,
       });
 
+      console.log('[Pricing] PayPal result:', result);
+
       if (result.success && result.approvalUrl) {
         console.log('[Pricing] Redirecting to PayPal:', result.approvalUrl);
-        await WebBrowser.openBrowserAsync(result.approvalUrl);
+        const browserResult = await WebBrowser.openBrowserAsync(result.approvalUrl);
+        console.log('[Pricing] Browser result:', browserResult);
+        
+        Alert.alert(
+          'Paiement en cours',
+          'Veuillez compléter le paiement sur PayPal. Une fois terminé, votre abonnement sera activé.',
+          [{ text: 'OK' }]
+        );
       } else {
-        throw new Error('Failed to create PayPal subscription');
+        console.error('[Pricing] Invalid PayPal response:', result);
+        throw new Error('Impossible de créer la commande PayPal');
       }
     } catch (error: any) {
       console.error('[Pricing] Error subscribing:', error);
-      Alert.alert('Erreur', error.message || 'Une erreur est survenue lors du paiement');
+      let errorMessage = 'Une erreur est survenue lors du paiement';
+      
+      if (error.message) {
+        if (error.message.includes('Identifiants PayPal')) {
+          errorMessage = 'Configuration PayPal invalide. Veuillez contacter l\'administrateur.';
+        } else if (error.message.includes('Authentification')) {
+          errorMessage = 'Erreur d\'authentification PayPal. Vérifiez les identifiants dans les paramètres admin.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      Alert.alert('Erreur de paiement', errorMessage);
     } finally {
       setIsProcessing(false);
       setSelectedPlan(null);
